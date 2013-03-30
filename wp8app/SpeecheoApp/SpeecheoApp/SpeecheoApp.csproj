@@ -188,8 +188,12 @@
     <Content Include="Html\css\phone.css" />
     <Content Include="Html\img\MainPageTItle.png" />
     <Content Include="Html\img\Title.png" />
-    <Content Include="Html\create.html" />
-    <Content Include="Html\index.html" />
+    <Content Include="Html\create.html">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Html\index.html">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Html\join.html" />
     <Content Include="Html\splity.html" />
   </ItemGroup>
