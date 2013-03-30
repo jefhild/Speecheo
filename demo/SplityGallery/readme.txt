@@ -7,6 +7,7 @@ Installation:
 
 * Install Haxe with the Brix library
 * Intall SLDialog in ../SLDialog/ - see http://sourceforge.net/projects/php-polling/
+   => use the svn https://php-polling.svn.sourceforge.net/svnroot/php-polling 
 * build demo/SplityGallery/build.hxml (run: "haxe build.hxml")
 
 Status
