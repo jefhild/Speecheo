@@ -1,120 +1,131 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Speecheo Map</title>
-    <script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>Speecheo Map</title>
+		<script type="text/javascript" src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<style>
+			/* Allow div of pushpin to display overflowing content */
+			.labelPin{
+				overflow:visible !important;
+				font-size:12px;
+				font-weight:bold;
+				border:solid 2px;
+				background-color:LightBlue;
+				width:100px;
+				text-align: center;
+				cursor: pointer;
+			}
 
-    <script type="text/javascript">
-      var map = null;
-      var pushpin = null;
-      var userPosition = null;
+			/* Hide the default pushpin, Alternatively point the icon property of the pushpin to a transparent image */
+			.labelPin img{
+				display:block;
+			}
+			/*Use this to style the text*/
+			.labelPin div{
+				white-space:nowrap;
+				color:blue !important;
+			}
+			#listconf{
+				list-style: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div id='conferencesMap' style="position:relative; width:100%; height:600px"></div>
+    <ul id="listconf"></ul>
+		<script  type="text/javascript">
+			getUserLocation();
+			var map = null;
+			var pushpin = null;
+			var userPosition = null;
 
-      function displayData(){
-        $.ajax({
-          type: 'POST',
-          url: 'http://www.pirtym.com/speecheo/data.json',
-          data: {},
-          contentType: "application/json; charset=utf-8",
-          dataType: "json",
-          success: function (response) {
-            console.log(response);
-            var pins = response.d;
-            GetMap(null);
-            $.each(pins, function (index, pin) {
-            var pinLocation = new Microsoft.Maps.Location(pin.Latitude, pin.Longitude)
-            // var pushpinOptions = {width: null, height: null,
-            // 	htmlContent: "<div style='font-size:12px;font-weight:bold;border:solid 2px;background-color:LightBlue;width:100px;'>Custom Pushpin</div>"};
-            var NewPin = new Microsoft.Maps.Pushpin(pinLocation, {
-              icon: '/img/mic.png',
-              text: pin.Title,
-              htmlContent: "<div class='labelPin'  onclick='alert(\"More infos about "+ pin.Title+"\")'>
-                "+ pin.Title+"<br/><img src='/img/mic.png' />
-              </div>",
-              anchor : new Microsoft.Maps.Point(0,0),  //Reset the anchor point of the pin to make aligning the text easier.
-              textOffset : new Microsoft.Maps.Point(20,0) //Adjust textOffset point for better label positioning
-            });
-            map.entities.push(NewPin);
-            });
-          }
-        });
-      }
+			function getMap(){
+				// Initialize the map
+				map = new Microsoft.Maps.Map(
+				document.getElementById("conferencesMap"),
+					{
+					credentials:"ArHBwb8uaV7CAeN8Mp1vBWHs2hSjKgRRzY3tkcX4J1MIzZ_R4Qk9WyIDstvQDZQ2",
+					showDashboard: false, showScalebar: false, showBreadcrumb:false,
+					center: new Microsoft.Maps.Location(userPosition.coords.latitude, userPosition.coords.longitude),
+					zoom:12
+					}
+				);
+			}
 
-      function GetMap(){
-        // Initialize the map
-        map = new Microsoft.Maps.Map(
-        document.getElementById("conferencesMap"),
-        {
-          credentials:"ArHBwb8uaV7CAeN8Mp1vBWHs2hSjKgRRzY3tkcX4J1MIzZ_R4Qk9WyIDstvQDZQ2",
-          showDashboard: false, showScalebar: false, showBreadcrumb:false,
-          center: new Microsoft.Maps.Location(userPosition.coords.latitude, userPosition.coords.longitude),
-          zoom:12
-        }
-      );
-   
+			function getUserLocation() {
+          displayLocation({"coords": {"latitude": 48.856614,"longitude":  2.352221}})
+				//check if the geolocation object is supported, if so get position
+        var loc = new Windows.Devices.Geolocation.Geolocator();
+				if (loc != null){
+					//navigator.geolocation.getCurrentPosition(displayLocation, displayError);
+          //loc.getGeopositionAsync().then(displayLocation, displayError);
+				} else {
+				  alert("no geolocation");
+					document.getElementById("locationData").innerHTML = "Sorry - your browser doesn't support geolocation!";
+          displayLocation({"coords": {"latitude": 1,"longitude": 2}})
+				}
+			}
+			  
+			function displayLocation(position) {
+				userPosition = position,
+				displayData();
+			}
+			  
+			function displayError(error) {
+				var errorText = "";
+				switch(error.code) {
+					case error.PERMISSION_DENIED:
+						errorText = "Permission was denied";
+						break;
+					case error.POSITION_UNAVAILABLE:
+						errorText = "Location data not available";
+						break;
+					case error.TIMEOUT:
+						errorText = "Location request timeout";
+						break;
+					case error.UNKNOWN_ERROR:
+						errorText = "An unspecified error occurred";
+						break;
+					default:
+						errorText = "Who knows what happened...";
+						break;
+					alert(errorText);
+				}
+			}
 
-      function getUserLocation() {
-        //check if the geolocation object is supported, if so get position
-        if (navigator.geolocation){
-          navigator.geolocation.getCurrentPosition(displayLocation, displayError);
-        } else {
-         document.getElementById("locationData").innerHTML = "Sorry - your browser doesn't support geolocation!";
-        }
-      }
-      function displayLocation(position) {
-        userPosition = position,
-        displayData();
-      }
-      function displayError(error) {
-        var errorText = "";
-        switch(error.code) {
-        case error.PERMISSION_DENIED:
-          errorText = "Permission was denied";
-          break;
-        case error.POSITION_UNAVAILABLE:
-          errorText = "Location data not available";
-          break;
-        case error.TIMEOUT:
-          errorText = "Location request timeout";
-          break;
-        case error.UNKNOWN_ERROR:
-          errorText = "An unspecified error occurred";
-          break;
-        default:
-          errorText = "Who knows what happened...";
-          break;
-        alert(errorText);
-      }}
-
-    </script>
-
-    <style>
-      /* Allow div of pushpin to display overflowing content */
-      .labelPin{
-        overflow:visible !important;
-        font-size:12px;
-        font-weight:bold;
-        border:solid 2px;
-        background-color:LightBlue;
-        width:100px;
-        text-align: center;
-        cursor: pointer;
-      }
-
-      /* Hide the default pushpin, Alternatively point the icon property of the pushpin to a transparent image */
-      .labelPin img{
-       display:block;
-      }
-
-      /*Use this to style the text*/
-      .labelPin div{
-        white-space:nowrap;
-        color:blue !important;
-      }
-    </style>
-  </head>
-  <body onload="getUserLocation();">
-    <div id='conferencesMap' style="position:relative; width:600px; height:800px;"></div>
-  </body>
+			function displayData(){
+				$.ajax({
+					type: 'POST',
+					url: 'http://www.pirtym.com/speecheo/data.json',
+					contentType: "application/json; charset=utf-8",
+					dataType: "json",
+					success: function (response) {
+						var pins = response.d;
+						getMap(null);
+						$.each(pins, function (index, pin) {
+							var pinLocation = new Microsoft.Maps.Location(pin.Latitude, pin.Longitude)
+							// var pushpinOptions = {width: null, height: null,
+							// 	htmlContent: "<div style='font-size:12px;font-weight:bold;border:solid 2px;background-color:LightBlue;width:100px;'>Custom Pushpin</div>"};
+							var NewPin = new Microsoft.Maps.Pushpin(pinLocation, {
+								icon: '/img/mic.png',
+								text: pin.Title,
+								htmlContent: "<div class='labelPin'  onclick='alert(\"More infos about "+ pin.Title+"\")'>"+ pin.Title+"<br/><img src='/img/mic.png' /></div>",
+								anchor : new Microsoft.Maps.Point(0,0),  //Reset the anchor point of the pin to make aligning the text easier.
+								textOffset : new Microsoft.Maps.Point(20,0) //Adjust textOffset point for better label positioning
+							});
+							map.entities.push(NewPin);
+						});
+            //list
+						var i,element;
+						for(i=0;i<response.d.length;i++) {
+							element = "<li><span class='posConf'>"+i+"</span><span class='titleConf'>"+response.d[i].Title+"</span><span class='nameConf'>"+response.d[i].Name+"</span></li>";
+							$('#listconf').append(element);
+						}
+					}
+				});
+			}
+		</script>
+	</body>
 </html>

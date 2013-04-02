@@ -16,39 +16,33 @@ namespace SpeecheoApp
         private string MainUri = "/Html/index.html";
 
         // Constructor
-        public MainPage()
-        {
+        public MainPage() {
             InitializeComponent();
         }
-
-        private void Browser_Loaded(object sender, RoutedEventArgs e)
-        {
+        
+        private void Browser_Loaded(object sender, RoutedEventArgs e) {
             // Add your URL here
             Browser.Navigate(new Uri(MainUri, UriKind.Relative));
             Browser.IsScriptEnabled = true;
         }
 
         // Navigates back in the web browser's navigation stack, not the applications.
-        private void BackApplicationBar_Click(object sender, EventArgs e)
-        {
+        private void BackApplicationBar_Click(object sender, EventArgs e) {
             Browser.GoBack();
         }
 
         // Navigates forward in the web browser's navigation stack, not the applications.
-        private void ForwardApplicationBar_Click(object sender, EventArgs e)
-        {
+        private void ForwardApplicationBar_Click(object sender, EventArgs e) {
             Browser.GoForward();
         }
 
         // Navigates to the initial "home" page.
-        private void HomeMenuItem_Click(object sender, EventArgs e)
-        {
+        private void HomeMenuItem_Click(object sender, EventArgs e) {
             Browser.Navigate(new Uri(MainUri, UriKind.Relative));
         }
 
         // Handle navigation failures.
-        private void Browser_NavigationFailed(object sender, System.Windows.Navigation.NavigationFailedEventArgs e)
-        {
+        private void Browser_NavigationFailed(object sender, System.Windows.Navigation.NavigationFailedEventArgs e) {
             MessageBox.Show("Navigation to this page failed, check your internet connection");
         }
     }
