@@ -194,8 +194,11 @@
     <Content Include="Html\index.html">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Html\join.html" />
+    <Content Include="Html\join.html">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Html\splity.html" />
+    <Content Include="Html\test.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\AppResources.resx">
