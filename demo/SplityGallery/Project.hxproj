@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <project version="2">
   <!-- Output SWF options -->
   <output>
@@ -16,7 +16,8 @@
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="src" />
-    <class path="..\..\..\Cocktail\src" />
+    <class path="bin" />
+    <class path="..\..\..\Cocktail" />
     <class path="..\..\..\Brix\src" />
   </classpaths>
   <!-- Build options -->
