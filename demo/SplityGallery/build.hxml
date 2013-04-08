@@ -1,9 +1,9 @@
 #sources
--cp ../../../Cocktail/
 -cp ../../../Brix/src/
 -cp ../../../SLDialog/src/
 -cp src
 -cp ../../src
+-lib Cocktail
 -lib hscript
 
 #binary
@@ -15,11 +15,11 @@
 --next
 
 #sources
--cp ../../../Cocktail/
 -cp ../../../Brix/src/
 -cp ../../../SLDialog/src/
 -cp src
 -cp ../../src
+-lib Cocktail
 -lib hscript
 
 #binary
