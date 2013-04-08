@@ -1196,11 +1196,11 @@ brix.component.ui.DisplayObject.prototype = {
 	}
 	,init: function() {
 	}
-	,dispatch: function(eventType,data,dispatcher) {
+	,dispatch: function(eventType,data,dispatcher,cancelable,direction) {
+		if(cancelable == null) cancelable = true;
 		if(dispatcher == null) dispatcher = this.rootElement;
-		var event = js.Lib.document.createEvent("CustomEvent");
-		event.initCustomEvent(eventType,false,false,data);
-		dispatcher.dispatchEvent(event);
+		if(direction == null) direction = brix.core.EventDirection.up;
+		this.eventMap.dispatch(eventType,data,dispatcher,cancelable,direction);
 	}
 	,unmapListeners: function() {
 		this.eventMap.unmapListeners();
@@ -1353,6 +1353,7 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 		if(this.preventRedraw) return;
 		var bodySize;
 		var boundingBox = brix.util.DomTools.getElementBoundingBox(this.rootElement);
+		haxe.Firebug.trace(boundingBox,{ fileName : "Panel.hx", lineNumber : 129, className : "brix.component.layout.Panel", methodName : "redraw"});
 		if(this.isHorizontal) {
 			var margin = this.rootElement.offsetWidth - this.rootElement.clientWidth;
 			var bodyMargin = this.body.offsetWidth - this.body.clientWidth;
@@ -1375,6 +1376,7 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 			var margin = this.rootElement.offsetHeight - this.rootElement.clientHeight;
 			var bodyMargin = this.body.offsetHeight - this.body.clientHeight;
 			bodySize = boundingBox.h;
+			haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 165, className : "brix.component.layout.Panel", methodName : "redraw"});
 			if(this.header != null) {
 				var bbHeader = brix.util.DomTools.getElementBoundingBox(this.header);
 				brix.util.DomTools.moveTo(this.body,null,bbHeader.h);
@@ -1382,11 +1384,13 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 			} else brix.util.DomTools.moveTo(this.body,null,0);
 			bodySize -= bodyMargin;
 			bodySize -= margin;
+			haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 178, className : "brix.component.layout.Panel", methodName : "redraw"});
 			if(this.footer != null) {
 				var footerMargin = this.footer.offsetHeight - this.footer.clientHeight;
 				var boundingBox1 = brix.util.DomTools.getElementBoundingBox(this.footer);
 				bodySize -= boundingBox1.h;
 				bodySize -= footerMargin;
+				haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 188, className : "brix.component.layout.Panel", methodName : "redraw"});
 			}
 			this.body.style.height = bodySize + "px";
 		}
@@ -1410,6 +1414,7 @@ brix.component.navigation.ContextManager = function(rootElement,brixId) {
 	this.mapListener(rootElement,"removeContextsEvent",$bind(this,this.onRemoveContextEvent),true);
 	this.mapListener(rootElement,"resetContextsEvent",$bind(this,this.onResetContextEvent),true);
 	this.mapListener(rootElement,"replaceContextsEvent",$bind(this,this.onReplaceContextsEvent),true);
+	this.mapListener(rootElement,"toggleContextsEvent",$bind(this,this.onToggleContextsEvent),true);
 };
 $hxClasses["brix.component.navigation.ContextManager"] = brix.component.navigation.ContextManager;
 brix.component.navigation.ContextManager.__name__ = ["brix","component","navigation","ContextManager"];
@@ -1465,6 +1470,10 @@ brix.component.navigation.ContextManager.prototype = $extend(brix.component.ui.D
 	,hasContext: function(context) {
 		return Lambda.has(this.currentContexts,context);
 	}
+	,toggleContext: function(context) {
+		if(!this.isContext(context)) throw "Error: unknown context \"" + context + "\". It should be defined in the \"" + "data-context-list" + "\" parameter of the Context component.";
+		if(this.hasContext(context)) this.removeContext(context); else this.addContext(context);
+	}
 	,removeContext: function(context) {
 		if(!this.isContext(context)) throw "Error: unknown context \"" + context + "\". It should be defined in the \"" + "data-context-list" + "\" parameter of the Context component.";
 		if(this.hasContext(context)) {
@@ -1495,6 +1504,15 @@ brix.component.navigation.ContextManager.prototype = $extend(brix.component.ui.D
 	}
 	,onResetContextEvent: function(e) {
 		this.resetContexts();
+	}
+	,onToggleContextsEvent: function(e) {
+		var contextValues = e.detail;
+		var _g = 0;
+		while(_g < contextValues.length) {
+			var contextValue = contextValues[_g];
+			++_g;
+			this.toggleContext(contextValue);
+		}
 	}
 	,onReplaceContextsEvent: function(e) {
 		var contextValues = e.detail;
@@ -1631,9 +1649,7 @@ brix.component.navigation.Layer.prototype = $extend(brix.component.ui.DisplayObj
 		}
 		this.setStatus(brix.component.navigation.LayerStatus.hidden);
 		try {
-			var event = js.Lib.document.createEvent("CustomEvent");
-			event.initCustomEvent("onLayerHideStop",false,false,{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this});
-			this.rootElement.dispatchEvent(event);
+			this.dispatch("onLayerHideStop",{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this},this.rootElement,true,brix.core.EventDirection.down);
 		} catch( e1 ) {
 			null;
 		}
@@ -1655,17 +1671,13 @@ brix.component.navigation.Layer.prototype = $extend(brix.component.ui.DisplayObj
 			this.removeTransitionEvent(this.doShowCallback);
 		}
 		if(this.status != brix.component.navigation.LayerStatus.visible && this.status != brix.component.navigation.LayerStatus.notInit) {
-			var event = js.Lib.document.createEvent("CustomEvent");
-			event.initCustomEvent("onLayerHideAgain",false,false,{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this});
-			this.rootElement.dispatchEvent(event);
+			this.dispatch("onLayerHideAgain",{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this},this.rootElement,true,brix.core.EventDirection.down);
 			return;
 		}
 		this.setStatus(brix.component.navigation.LayerStatus.hideTransition);
 		if(transitionObserver != null) transitionObserver.addTransition(this);
 		try {
-			var event = js.Lib.document.createEvent("CustomEvent");
-			event.initCustomEvent("onLayerHideStart",false,false,{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this});
-			this.rootElement.dispatchEvent(event);
+			this.dispatch("onLayerHideStart",{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this},this.rootElement,true,brix.core.EventDirection.down);
 		} catch( e ) {
 			null;
 		}
@@ -1693,9 +1705,7 @@ brix.component.navigation.Layer.prototype = $extend(brix.component.ui.DisplayObj
 		var videoNodes = this.rootElement.getElementsByTagName("video");
 		this.setupVideoElements(videoNodes);
 		try {
-			var event = js.Lib.document.createEvent("CustomEvent");
-			event.initCustomEvent("onLayerShowStop",false,false,{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this});
-			this.rootElement.dispatchEvent(event);
+			this.dispatch("onLayerShowStop",{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this},this.rootElement,true,brix.core.EventDirection.down);
 		} catch( e1 ) {
 			null;
 		}
@@ -1711,9 +1721,7 @@ brix.component.navigation.Layer.prototype = $extend(brix.component.ui.DisplayObj
 			this.removeTransitionEvent(this.doShowCallback);
 		}
 		if(this.status != brix.component.navigation.LayerStatus.hidden && this.status != brix.component.navigation.LayerStatus.notInit) {
-			var event = js.Lib.document.createEvent("CustomEvent");
-			event.initCustomEvent("onLayerShowAgain",true,true,{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this});
-			this.rootElement.dispatchEvent(event);
+			this.dispatch("onLayerShowAgain",{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this},this.rootElement,true,brix.core.EventDirection.down);
 			if(transitionObserver != null) transitionObserver.alreadyOpen(this);
 			return;
 		}
@@ -1724,9 +1732,7 @@ brix.component.navigation.Layer.prototype = $extend(brix.component.ui.DisplayObj
 		}
 		if(transitionObserver != null) transitionObserver.addTransition(this);
 		try {
-			var event = js.Lib.document.createEvent("CustomEvent");
-			event.initCustomEvent("onLayerShowStart",false,false,{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this});
-			this.rootElement.dispatchEvent(event);
+			this.dispatch("onLayerShowStart",{ transitionObserver : transitionObserver, transitionData : transitionData, target : this.rootElement, layer : this},this.rootElement,true,brix.core.EventDirection.down);
 		} catch( e ) {
 			null;
 		}
@@ -3001,6 +3007,19 @@ brix.core.ApplicationContext.prototype = {
 	,registeredUIComponents: null
 	,__class__: brix.core.ApplicationContext
 }
+brix.core.EventDirection = $hxClasses["brix.core.EventDirection"] = { __ename__ : ["brix","core","EventDirection"], __constructs__ : ["up","down","both","none"] }
+brix.core.EventDirection.up = ["up",0];
+brix.core.EventDirection.up.toString = $estr;
+brix.core.EventDirection.up.__enum__ = brix.core.EventDirection;
+brix.core.EventDirection.down = ["down",1];
+brix.core.EventDirection.down.toString = $estr;
+brix.core.EventDirection.down.__enum__ = brix.core.EventDirection;
+brix.core.EventDirection.both = ["both",2];
+brix.core.EventDirection.both.toString = $estr;
+brix.core.EventDirection.both.__enum__ = brix.core.EventDirection;
+brix.core.EventDirection.none = ["none",3];
+brix.core.EventDirection.none.toString = $estr;
+brix.core.EventDirection.none.__enum__ = brix.core.EventDirection;
 brix.core.EventMap = function() {
 	this.notCapturingListeners = new brix.util.haxe.ObjectHash();
 	this.capturingListeners = new brix.util.haxe.ObjectHash();
@@ -3017,6 +3036,26 @@ brix.core.EventMap.prototype = {
 	,getListeners: function(useCapture) {
 		if(useCapture) return this.capturingListeners;
 		return this.notCapturingListeners;
+	}
+	,dispatchCustomEvent: function(eventType,data,dispatcher,cancelable,canBubble) {
+		var event = js.Lib.document.createEvent("CustomEvent");
+		event.initCustomEvent(eventType,canBubble,cancelable,data);
+		dispatcher.dispatchEvent(event);
+	}
+	,dispatchDownRecursive: function(eventType,data,dispatcher,cancelable) {
+		var _g1 = 0, _g = dispatcher.childNodes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var node = dispatcher.childNodes[i];
+			if(node.nodeType == 1) {
+				this.dispatchCustomEvent(eventType,data,node,cancelable,false);
+				this.dispatchDownRecursive(eventType,data,node,cancelable);
+			}
+		}
+	}
+	,dispatch: function(eventType,data,dispatcher,cancelable,direction) {
+		if(direction != brix.core.EventDirection.down) this.dispatchCustomEvent(eventType,data,dispatcher,cancelable,direction == brix.core.EventDirection.up || direction == brix.core.EventDirection.both); else this.dispatchCustomEvent(eventType,data,dispatcher,cancelable,false);
+		if(direction == brix.core.EventDirection.down || direction == brix.core.EventDirection.both) this.dispatchDownRecursive(eventType,data,dispatcher,cancelable);
 	}
 	,unmapListeners: function() {
 		var useCapture = true;
@@ -3177,6 +3216,7 @@ brix.util.DomTools.getElementBoundingBox = function(htmlDom) {
 		offsetTop += element.offsetTop;
 		offsetLeft += element.offsetLeft;
 		element = element.offsetParent;
+		haxe.Firebug.trace(htmlDom.offsetHeight + " - " + offsetHeight,{ fileName : "DomTools.hx", lineNumber : 279, className : "brix.util.DomTools", methodName : "getElementBoundingBox"});
 	}
 	return { x : Math.round(offsetLeft), y : Math.round(offsetTop), w : Math.round(htmlDom.offsetWidth + offsetWidth), h : Math.round(htmlDom.offsetHeight + offsetHeight)};
 }
@@ -3670,6 +3710,36 @@ components.ResizeIcon.prototype = $extend(brix.component.ui.DisplayObject.protot
 	}
 	,__class__: components.ResizeIcon
 });
+haxe.Firebug = function() { }
+$hxClasses["haxe.Firebug"] = haxe.Firebug;
+haxe.Firebug.__name__ = ["haxe","Firebug"];
+haxe.Firebug.detect = function() {
+	try {
+		return console != null && console.error != null;
+	} catch( e ) {
+		return false;
+	}
+}
+haxe.Firebug.redirectTraces = function() {
+	haxe.Log.trace = haxe.Firebug.trace;
+	js.Lib.onerror = haxe.Firebug.onError;
+}
+haxe.Firebug.onError = function(err,stack) {
+	var buf = err + "\n";
+	var _g = 0;
+	while(_g < stack.length) {
+		var s = stack[_g];
+		++_g;
+		buf += "Called from " + s + "\n";
+	}
+	haxe.Firebug.trace(buf,null);
+	return true;
+}
+haxe.Firebug.trace = function(v,inf) {
+	var type = inf != null && inf.customParams != null?inf.customParams[0]:null;
+	if(type != "warn" && type != "info" && type != "debug" && type != "error") type = inf == null?"error":"log";
+	console[type]((inf == null?"":inf.fileName + ":" + inf.lineNumber + " : ") + Std.string(v));
+}
 haxe.Http = function(url) {
 	this.url = url;
 	this.headers = new Hash();
@@ -5394,6 +5464,7 @@ brix.component.navigation.ContextManager.PARAM_DATA_INITIAL_CONTEXT = "data-init
 brix.component.navigation.ContextManager.EVENT_CONTEXT_CHANGE = "changeContextEvent";
 brix.component.navigation.ContextManager.EVENT_ADD_CONTEXTS = "addContextsEvent";
 brix.component.navigation.ContextManager.EVENT_REMOVE_CONTEXTS = "removeContextsEvent";
+brix.component.navigation.ContextManager.EVENT_TOGGLE_CONTEXTS = "toggleContextsEvent";
 brix.component.navigation.ContextManager.EVENT_REPLACE_CONTEXTS = "replaceContextsEvent";
 brix.component.navigation.ContextManager.EVENT_RESET_CONTEXTS = "resetContextsEvent";
 brix.component.navigation.Layer.EVENT_TYPE_SHOW_START = "onLayerShowStart";

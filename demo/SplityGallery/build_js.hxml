@@ -11,6 +11,7 @@
 -main brix.core.Application
 --macro brix.core.Builder.create('./src/index.html')
 --no-traces
+#-D disableEmbedHtml
 
 --next
 
