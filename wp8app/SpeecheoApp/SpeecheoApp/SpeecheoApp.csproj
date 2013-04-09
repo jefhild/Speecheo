@@ -204,11 +204,13 @@
     <Content Include="Html\create.html">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Html\index.html" />
+    <Content Include="Html\index.html">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Html\index_damien.html" />
     <Content Include="Html\index_lisa.html">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Html\index_old.html" />
     <Content Include="Html\join.html">
       <SubType>Designer</SubType>
     </Content>
@@ -219,7 +221,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Html\test.html" />
-    <Content Include="Html\tweets.html" />
+    <Content Include="Html\tweets.html">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\AppResources.resx">

@@ -1353,7 +1353,6 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 		if(this.preventRedraw) return;
 		var bodySize;
 		var boundingBox = brix.util.DomTools.getElementBoundingBox(this.rootElement);
-		haxe.Firebug.trace(boundingBox,{ fileName : "Panel.hx", lineNumber : 129, className : "brix.component.layout.Panel", methodName : "redraw"});
 		if(this.isHorizontal) {
 			var margin = this.rootElement.offsetWidth - this.rootElement.clientWidth;
 			var bodyMargin = this.body.offsetWidth - this.body.clientWidth;
@@ -1376,7 +1375,6 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 			var margin = this.rootElement.offsetHeight - this.rootElement.clientHeight;
 			var bodyMargin = this.body.offsetHeight - this.body.clientHeight;
 			bodySize = boundingBox.h;
-			haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 165, className : "brix.component.layout.Panel", methodName : "redraw"});
 			if(this.header != null) {
 				var bbHeader = brix.util.DomTools.getElementBoundingBox(this.header);
 				brix.util.DomTools.moveTo(this.body,null,bbHeader.h);
@@ -1384,13 +1382,11 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 			} else brix.util.DomTools.moveTo(this.body,null,0);
 			bodySize -= bodyMargin;
 			bodySize -= margin;
-			haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 178, className : "brix.component.layout.Panel", methodName : "redraw"});
 			if(this.footer != null) {
 				var footerMargin = this.footer.offsetHeight - this.footer.clientHeight;
 				var boundingBox1 = brix.util.DomTools.getElementBoundingBox(this.footer);
 				bodySize -= boundingBox1.h;
 				bodySize -= footerMargin;
-				haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 188, className : "brix.component.layout.Panel", methodName : "redraw"});
 			}
 			this.body.style.height = bodySize + "px";
 		}
@@ -3216,7 +3212,6 @@ brix.util.DomTools.getElementBoundingBox = function(htmlDom) {
 		offsetTop += element.offsetTop;
 		offsetLeft += element.offsetLeft;
 		element = element.offsetParent;
-		haxe.Firebug.trace(htmlDom.offsetHeight + " - " + offsetHeight,{ fileName : "DomTools.hx", lineNumber : 279, className : "brix.util.DomTools", methodName : "getElementBoundingBox"});
 	}
 	return { x : Math.round(offsetLeft), y : Math.round(offsetTop), w : Math.round(htmlDom.offsetWidth + offsetWidth), h : Math.round(htmlDom.offsetHeight + offsetHeight)};
 }
@@ -3710,36 +3705,6 @@ components.ResizeIcon.prototype = $extend(brix.component.ui.DisplayObject.protot
 	}
 	,__class__: components.ResizeIcon
 });
-haxe.Firebug = function() { }
-$hxClasses["haxe.Firebug"] = haxe.Firebug;
-haxe.Firebug.__name__ = ["haxe","Firebug"];
-haxe.Firebug.detect = function() {
-	try {
-		return console != null && console.error != null;
-	} catch( e ) {
-		return false;
-	}
-}
-haxe.Firebug.redirectTraces = function() {
-	haxe.Log.trace = haxe.Firebug.trace;
-	js.Lib.onerror = haxe.Firebug.onError;
-}
-haxe.Firebug.onError = function(err,stack) {
-	var buf = err + "\n";
-	var _g = 0;
-	while(_g < stack.length) {
-		var s = stack[_g];
-		++_g;
-		buf += "Called from " + s + "\n";
-	}
-	haxe.Firebug.trace(buf,null);
-	return true;
-}
-haxe.Firebug.trace = function(v,inf) {
-	var type = inf != null && inf.customParams != null?inf.customParams[0]:null;
-	if(type != "warn" && type != "info" && type != "debug" && type != "error") type = inf == null?"error":"log";
-	console[type]((inf == null?"":inf.fileName + ":" + inf.lineNumber + " : ") + Std.string(v));
-}
 haxe.Http = function(url) {
 	this.url = url;
 	this.headers = new Hash();

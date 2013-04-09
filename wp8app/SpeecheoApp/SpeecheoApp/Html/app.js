@@ -1353,7 +1353,6 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 		if(this.preventRedraw) return;
 		var bodySize;
 		var boundingBox = brix.util.DomTools.getElementBoundingBox(this.rootElement);
-		haxe.Firebug.trace(boundingBox,{ fileName : "Panel.hx", lineNumber : 129, className : "brix.component.layout.Panel", methodName : "redraw"});
 		if(this.isHorizontal) {
 			var margin = this.rootElement.offsetWidth - this.rootElement.clientWidth;
 			var bodyMargin = this.body.offsetWidth - this.body.clientWidth;
@@ -1376,7 +1375,6 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 			var margin = this.rootElement.offsetHeight - this.rootElement.clientHeight;
 			var bodyMargin = this.body.offsetHeight - this.body.clientHeight;
 			bodySize = boundingBox.h;
-			haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 165, className : "brix.component.layout.Panel", methodName : "redraw"});
 			if(this.header != null) {
 				var bbHeader = brix.util.DomTools.getElementBoundingBox(this.header);
 				brix.util.DomTools.moveTo(this.body,null,bbHeader.h);
@@ -1384,13 +1382,11 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 			} else brix.util.DomTools.moveTo(this.body,null,0);
 			bodySize -= bodyMargin;
 			bodySize -= margin;
-			haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 178, className : "brix.component.layout.Panel", methodName : "redraw"});
 			if(this.footer != null) {
 				var footerMargin = this.footer.offsetHeight - this.footer.clientHeight;
 				var boundingBox1 = brix.util.DomTools.getElementBoundingBox(this.footer);
 				bodySize -= boundingBox1.h;
 				bodySize -= footerMargin;
-				haxe.Firebug.trace(bodySize,{ fileName : "Panel.hx", lineNumber : 188, className : "brix.component.layout.Panel", methodName : "redraw"});
 			}
 			this.body.style.height = bodySize + "px";
 		}
@@ -2448,9 +2444,11 @@ brix.core.Application.get = function(BrixId) {
 }
 brix.core.Application.main = function() {
 	var newApp = brix.core.Application.createApplication();
-	newApp.initDom();
-	newApp.initComponents();
-	newApp.attachBody();
+	js.Lib.window.onload = function(e) {
+		newApp.initDom();
+		newApp.initComponents();
+		newApp.attachBody();
+	};
 }
 brix.core.Application.createApplication = function(args) {
 	var newId = brix.core.Application.generateUniqueId();
@@ -2655,26 +2653,7 @@ brix.core.Application.prototype = {
 		this.htmlRootElement = appendTo;
 		if(this.htmlRootElement == null || this.htmlRootElement.nodeType != js.Lib.document.documentElement.nodeType) this.htmlRootElement = js.Lib.document.documentElement;
 		if(this.htmlRootElement == null) return;
-		var htmlString = brix.core.ApplicationContext.htmlDocumentElement;
-		var lowerCaseHtml = htmlString.toLowerCase();
-		var htmlOpenIdx = lowerCaseHtml.indexOf("<html");
-		var htmlCloseIdx = lowerCaseHtml.indexOf("</html>");
-		if(htmlOpenIdx > -1 && htmlCloseIdx > -1) {
-			var closingTagIdx = lowerCaseHtml.indexOf(">",htmlOpenIdx);
-			lowerCaseHtml = lowerCaseHtml.substring(closingTagIdx + 1,htmlCloseIdx);
-			htmlString = htmlString.substring(closingTagIdx + 1,htmlCloseIdx);
-		}
-		var bodyOpenIdx = lowerCaseHtml.indexOf("<body");
-		var bodyCloseIdx = lowerCaseHtml.indexOf("</body>");
-		if(bodyOpenIdx <= -1 || bodyCloseIdx <= -1) throw "Error: body tag not found or malformed.";
-		var closingTagIdx = lowerCaseHtml.indexOf(">",bodyOpenIdx);
-		var documentString = htmlString.substring(0,closingTagIdx + 1);
-		var bodyString = htmlString.substring(closingTagIdx + 1,bodyCloseIdx);
-		documentString += HxOverrides.substr(htmlString,bodyCloseIdx,null);
-		this.body.innerHTML = bodyString;
-		var updateRootRef = this.htmlRootElement == js.Lib.document.documentElement;
-		brix.util.DomTools.innerHTML(this.htmlRootElement,documentString);
-		if(updateRootRef) this.htmlRootElement = js.Lib.document.documentElement;
+		this.body = js.Lib.document.body;
 	}
 	,attachBody: function(appendTo) {
 		if(appendTo == null) appendTo = js.Lib.document.body;
@@ -2699,271 +2678,6 @@ brix.core.Application.prototype = {
 	,id: null
 	,__class__: brix.core.Application
 	,__properties__: {get_registeredUIComponents:"getRegisteredUIComponents",get_registeredGlobalComponents:"getRegisteredGlobalComponents"}
-}
-var haxe = {}
-haxe.Unserializer = function(buf) {
-	this.buf = buf;
-	this.length = buf.length;
-	this.pos = 0;
-	this.scache = new Array();
-	this.cache = new Array();
-	var r = haxe.Unserializer.DEFAULT_RESOLVER;
-	if(r == null) {
-		r = Type;
-		haxe.Unserializer.DEFAULT_RESOLVER = r;
-	}
-	this.setResolver(r);
-};
-$hxClasses["haxe.Unserializer"] = haxe.Unserializer;
-haxe.Unserializer.__name__ = ["haxe","Unserializer"];
-haxe.Unserializer.initCodes = function() {
-	var codes = new Array();
-	var _g1 = 0, _g = haxe.Unserializer.BASE64.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		codes[haxe.Unserializer.BASE64.charCodeAt(i)] = i;
-	}
-	return codes;
-}
-haxe.Unserializer.run = function(v) {
-	return new haxe.Unserializer(v).unserialize();
-}
-haxe.Unserializer.prototype = {
-	unserialize: function() {
-		switch(this.buf.charCodeAt(this.pos++)) {
-		case 110:
-			return null;
-		case 116:
-			return true;
-		case 102:
-			return false;
-		case 122:
-			return 0;
-		case 105:
-			return this.readDigits();
-		case 100:
-			var p1 = this.pos;
-			while(true) {
-				var c = this.buf.charCodeAt(this.pos);
-				if(c >= 43 && c < 58 || c == 101 || c == 69) this.pos++; else break;
-			}
-			return Std.parseFloat(HxOverrides.substr(this.buf,p1,this.pos - p1));
-		case 121:
-			var len = this.readDigits();
-			if(this.buf.charCodeAt(this.pos++) != 58 || this.length - this.pos < len) throw "Invalid string length";
-			var s = HxOverrides.substr(this.buf,this.pos,len);
-			this.pos += len;
-			s = StringTools.urlDecode(s);
-			this.scache.push(s);
-			return s;
-		case 107:
-			return Math.NaN;
-		case 109:
-			return Math.NEGATIVE_INFINITY;
-		case 112:
-			return Math.POSITIVE_INFINITY;
-		case 97:
-			var buf = this.buf;
-			var a = new Array();
-			this.cache.push(a);
-			while(true) {
-				var c = this.buf.charCodeAt(this.pos);
-				if(c == 104) {
-					this.pos++;
-					break;
-				}
-				if(c == 117) {
-					this.pos++;
-					var n = this.readDigits();
-					a[a.length + n - 1] = null;
-				} else a.push(this.unserialize());
-			}
-			return a;
-		case 111:
-			var o = { };
-			this.cache.push(o);
-			this.unserializeObject(o);
-			return o;
-		case 114:
-			var n = this.readDigits();
-			if(n < 0 || n >= this.cache.length) throw "Invalid reference";
-			return this.cache[n];
-		case 82:
-			var n = this.readDigits();
-			if(n < 0 || n >= this.scache.length) throw "Invalid string reference";
-			return this.scache[n];
-		case 120:
-			throw this.unserialize();
-			break;
-		case 99:
-			var name = this.unserialize();
-			var cl = this.resolver.resolveClass(name);
-			if(cl == null) throw "Class not found " + name;
-			var o = Type.createEmptyInstance(cl);
-			this.cache.push(o);
-			this.unserializeObject(o);
-			return o;
-		case 119:
-			var name = this.unserialize();
-			var edecl = this.resolver.resolveEnum(name);
-			if(edecl == null) throw "Enum not found " + name;
-			var e = this.unserializeEnum(edecl,this.unserialize());
-			this.cache.push(e);
-			return e;
-		case 106:
-			var name = this.unserialize();
-			var edecl = this.resolver.resolveEnum(name);
-			if(edecl == null) throw "Enum not found " + name;
-			this.pos++;
-			var index = this.readDigits();
-			var tag = Type.getEnumConstructs(edecl)[index];
-			if(tag == null) throw "Unknown enum index " + name + "@" + index;
-			var e = this.unserializeEnum(edecl,tag);
-			this.cache.push(e);
-			return e;
-		case 108:
-			var l = new List();
-			this.cache.push(l);
-			var buf = this.buf;
-			while(this.buf.charCodeAt(this.pos) != 104) l.add(this.unserialize());
-			this.pos++;
-			return l;
-		case 98:
-			var h = new Hash();
-			this.cache.push(h);
-			var buf = this.buf;
-			while(this.buf.charCodeAt(this.pos) != 104) {
-				var s = this.unserialize();
-				h.set(s,this.unserialize());
-			}
-			this.pos++;
-			return h;
-		case 113:
-			var h = new IntHash();
-			this.cache.push(h);
-			var buf = this.buf;
-			var c = this.buf.charCodeAt(this.pos++);
-			while(c == 58) {
-				var i = this.readDigits();
-				h.set(i,this.unserialize());
-				c = this.buf.charCodeAt(this.pos++);
-			}
-			if(c != 104) throw "Invalid IntHash format";
-			return h;
-		case 118:
-			var d = HxOverrides.strDate(HxOverrides.substr(this.buf,this.pos,19));
-			this.cache.push(d);
-			this.pos += 19;
-			return d;
-		case 115:
-			var len = this.readDigits();
-			var buf = this.buf;
-			if(this.buf.charCodeAt(this.pos++) != 58 || this.length - this.pos < len) throw "Invalid bytes length";
-			var codes = haxe.Unserializer.CODES;
-			if(codes == null) {
-				codes = haxe.Unserializer.initCodes();
-				haxe.Unserializer.CODES = codes;
-			}
-			var i = this.pos;
-			var rest = len & 3;
-			var size = (len >> 2) * 3 + (rest >= 2?rest - 1:0);
-			var max = i + (len - rest);
-			var bytes = haxe.io.Bytes.alloc(size);
-			var bpos = 0;
-			while(i < max) {
-				var c1 = codes[buf.charCodeAt(i++)];
-				var c2 = codes[buf.charCodeAt(i++)];
-				bytes.b[bpos++] = (c1 << 2 | c2 >> 4) & 255;
-				var c3 = codes[buf.charCodeAt(i++)];
-				bytes.b[bpos++] = (c2 << 4 | c3 >> 2) & 255;
-				var c4 = codes[buf.charCodeAt(i++)];
-				bytes.b[bpos++] = (c3 << 6 | c4) & 255;
-			}
-			if(rest >= 2) {
-				var c1 = codes[buf.charCodeAt(i++)];
-				var c2 = codes[buf.charCodeAt(i++)];
-				bytes.b[bpos++] = (c1 << 2 | c2 >> 4) & 255;
-				if(rest == 3) {
-					var c3 = codes[buf.charCodeAt(i++)];
-					bytes.b[bpos++] = (c2 << 4 | c3 >> 2) & 255;
-				}
-			}
-			this.pos += len;
-			this.cache.push(bytes);
-			return bytes;
-		case 67:
-			var name = this.unserialize();
-			var cl = this.resolver.resolveClass(name);
-			if(cl == null) throw "Class not found " + name;
-			var o = Type.createEmptyInstance(cl);
-			this.cache.push(o);
-			o.hxUnserialize(this);
-			if(this.buf.charCodeAt(this.pos++) != 103) throw "Invalid custom data";
-			return o;
-		default:
-		}
-		this.pos--;
-		throw "Invalid char " + this.buf.charAt(this.pos) + " at position " + this.pos;
-	}
-	,unserializeEnum: function(edecl,tag) {
-		if(this.buf.charCodeAt(this.pos++) != 58) throw "Invalid enum format";
-		var nargs = this.readDigits();
-		if(nargs == 0) return Type.createEnum(edecl,tag);
-		var args = new Array();
-		while(nargs-- > 0) args.push(this.unserialize());
-		return Type.createEnum(edecl,tag,args);
-	}
-	,unserializeObject: function(o) {
-		while(true) {
-			if(this.pos >= this.length) throw "Invalid object";
-			if(this.buf.charCodeAt(this.pos) == 103) break;
-			var k = this.unserialize();
-			if(!js.Boot.__instanceof(k,String)) throw "Invalid object key";
-			var v = this.unserialize();
-			o[k] = v;
-		}
-		this.pos++;
-	}
-	,readDigits: function() {
-		var k = 0;
-		var s = false;
-		var fpos = this.pos;
-		while(true) {
-			var c = this.buf.charCodeAt(this.pos);
-			if(c != c) break;
-			if(c == 45) {
-				if(this.pos != fpos) break;
-				s = true;
-				this.pos++;
-				continue;
-			}
-			if(c < 48 || c > 57) break;
-			k = k * 10 + (c - 48);
-			this.pos++;
-		}
-		if(s) k *= -1;
-		return k;
-	}
-	,get: function(p) {
-		return this.buf.charCodeAt(p);
-	}
-	,getResolver: function() {
-		return this.resolver;
-	}
-	,setResolver: function(r) {
-		if(r == null) this.resolver = { resolveClass : function(_) {
-			return null;
-		}, resolveEnum : function(_) {
-			return null;
-		}}; else this.resolver = r;
-	}
-	,resolver: null
-	,scache: null
-	,cache: null
-	,length: null
-	,pos: null
-	,buf: null
-	,__class__: haxe.Unserializer
 }
 brix.core.ApplicationContext = function() {
 	this.registeredUIComponents = new Array();
@@ -3216,7 +2930,6 @@ brix.util.DomTools.getElementBoundingBox = function(htmlDom) {
 		offsetTop += element.offsetTop;
 		offsetLeft += element.offsetLeft;
 		element = element.offsetParent;
-		haxe.Firebug.trace(htmlDom.offsetHeight + " - " + offsetHeight,{ fileName : "DomTools.hx", lineNumber : 279, className : "brix.util.DomTools", methodName : "getElementBoundingBox"});
 	}
 	return { x : Math.round(offsetLeft), y : Math.round(offsetTop), w : Math.round(htmlDom.offsetWidth + offsetWidth), h : Math.round(htmlDom.offsetHeight + offsetHeight)};
 }
@@ -3710,36 +3423,7 @@ components.ResizeIcon.prototype = $extend(brix.component.ui.DisplayObject.protot
 	}
 	,__class__: components.ResizeIcon
 });
-haxe.Firebug = function() { }
-$hxClasses["haxe.Firebug"] = haxe.Firebug;
-haxe.Firebug.__name__ = ["haxe","Firebug"];
-haxe.Firebug.detect = function() {
-	try {
-		return console != null && console.error != null;
-	} catch( e ) {
-		return false;
-	}
-}
-haxe.Firebug.redirectTraces = function() {
-	haxe.Log.trace = haxe.Firebug.trace;
-	js.Lib.onerror = haxe.Firebug.onError;
-}
-haxe.Firebug.onError = function(err,stack) {
-	var buf = err + "\n";
-	var _g = 0;
-	while(_g < stack.length) {
-		var s = stack[_g];
-		++_g;
-		buf += "Called from " + s + "\n";
-	}
-	haxe.Firebug.trace(buf,null);
-	return true;
-}
-haxe.Firebug.trace = function(v,inf) {
-	var type = inf != null && inf.customParams != null?inf.customParams[0]:null;
-	if(type != "warn" && type != "info" && type != "debug" && type != "error") type = inf == null?"error":"log";
-	console[type]((inf == null?"":inf.fileName + ":" + inf.lineNumber + " : ") + Std.string(v));
-}
+var haxe = {}
 haxe.Http = function(url) {
 	this.url = url;
 	this.headers = new Hash();
@@ -4618,6 +4302,270 @@ haxe.Timer.prototype = {
 	}
 	,id: null
 	,__class__: haxe.Timer
+}
+haxe.Unserializer = function(buf) {
+	this.buf = buf;
+	this.length = buf.length;
+	this.pos = 0;
+	this.scache = new Array();
+	this.cache = new Array();
+	var r = haxe.Unserializer.DEFAULT_RESOLVER;
+	if(r == null) {
+		r = Type;
+		haxe.Unserializer.DEFAULT_RESOLVER = r;
+	}
+	this.setResolver(r);
+};
+$hxClasses["haxe.Unserializer"] = haxe.Unserializer;
+haxe.Unserializer.__name__ = ["haxe","Unserializer"];
+haxe.Unserializer.initCodes = function() {
+	var codes = new Array();
+	var _g1 = 0, _g = haxe.Unserializer.BASE64.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		codes[haxe.Unserializer.BASE64.charCodeAt(i)] = i;
+	}
+	return codes;
+}
+haxe.Unserializer.run = function(v) {
+	return new haxe.Unserializer(v).unserialize();
+}
+haxe.Unserializer.prototype = {
+	unserialize: function() {
+		switch(this.buf.charCodeAt(this.pos++)) {
+		case 110:
+			return null;
+		case 116:
+			return true;
+		case 102:
+			return false;
+		case 122:
+			return 0;
+		case 105:
+			return this.readDigits();
+		case 100:
+			var p1 = this.pos;
+			while(true) {
+				var c = this.buf.charCodeAt(this.pos);
+				if(c >= 43 && c < 58 || c == 101 || c == 69) this.pos++; else break;
+			}
+			return Std.parseFloat(HxOverrides.substr(this.buf,p1,this.pos - p1));
+		case 121:
+			var len = this.readDigits();
+			if(this.buf.charCodeAt(this.pos++) != 58 || this.length - this.pos < len) throw "Invalid string length";
+			var s = HxOverrides.substr(this.buf,this.pos,len);
+			this.pos += len;
+			s = StringTools.urlDecode(s);
+			this.scache.push(s);
+			return s;
+		case 107:
+			return Math.NaN;
+		case 109:
+			return Math.NEGATIVE_INFINITY;
+		case 112:
+			return Math.POSITIVE_INFINITY;
+		case 97:
+			var buf = this.buf;
+			var a = new Array();
+			this.cache.push(a);
+			while(true) {
+				var c = this.buf.charCodeAt(this.pos);
+				if(c == 104) {
+					this.pos++;
+					break;
+				}
+				if(c == 117) {
+					this.pos++;
+					var n = this.readDigits();
+					a[a.length + n - 1] = null;
+				} else a.push(this.unserialize());
+			}
+			return a;
+		case 111:
+			var o = { };
+			this.cache.push(o);
+			this.unserializeObject(o);
+			return o;
+		case 114:
+			var n = this.readDigits();
+			if(n < 0 || n >= this.cache.length) throw "Invalid reference";
+			return this.cache[n];
+		case 82:
+			var n = this.readDigits();
+			if(n < 0 || n >= this.scache.length) throw "Invalid string reference";
+			return this.scache[n];
+		case 120:
+			throw this.unserialize();
+			break;
+		case 99:
+			var name = this.unserialize();
+			var cl = this.resolver.resolveClass(name);
+			if(cl == null) throw "Class not found " + name;
+			var o = Type.createEmptyInstance(cl);
+			this.cache.push(o);
+			this.unserializeObject(o);
+			return o;
+		case 119:
+			var name = this.unserialize();
+			var edecl = this.resolver.resolveEnum(name);
+			if(edecl == null) throw "Enum not found " + name;
+			var e = this.unserializeEnum(edecl,this.unserialize());
+			this.cache.push(e);
+			return e;
+		case 106:
+			var name = this.unserialize();
+			var edecl = this.resolver.resolveEnum(name);
+			if(edecl == null) throw "Enum not found " + name;
+			this.pos++;
+			var index = this.readDigits();
+			var tag = Type.getEnumConstructs(edecl)[index];
+			if(tag == null) throw "Unknown enum index " + name + "@" + index;
+			var e = this.unserializeEnum(edecl,tag);
+			this.cache.push(e);
+			return e;
+		case 108:
+			var l = new List();
+			this.cache.push(l);
+			var buf = this.buf;
+			while(this.buf.charCodeAt(this.pos) != 104) l.add(this.unserialize());
+			this.pos++;
+			return l;
+		case 98:
+			var h = new Hash();
+			this.cache.push(h);
+			var buf = this.buf;
+			while(this.buf.charCodeAt(this.pos) != 104) {
+				var s = this.unserialize();
+				h.set(s,this.unserialize());
+			}
+			this.pos++;
+			return h;
+		case 113:
+			var h = new IntHash();
+			this.cache.push(h);
+			var buf = this.buf;
+			var c = this.buf.charCodeAt(this.pos++);
+			while(c == 58) {
+				var i = this.readDigits();
+				h.set(i,this.unserialize());
+				c = this.buf.charCodeAt(this.pos++);
+			}
+			if(c != 104) throw "Invalid IntHash format";
+			return h;
+		case 118:
+			var d = HxOverrides.strDate(HxOverrides.substr(this.buf,this.pos,19));
+			this.cache.push(d);
+			this.pos += 19;
+			return d;
+		case 115:
+			var len = this.readDigits();
+			var buf = this.buf;
+			if(this.buf.charCodeAt(this.pos++) != 58 || this.length - this.pos < len) throw "Invalid bytes length";
+			var codes = haxe.Unserializer.CODES;
+			if(codes == null) {
+				codes = haxe.Unserializer.initCodes();
+				haxe.Unserializer.CODES = codes;
+			}
+			var i = this.pos;
+			var rest = len & 3;
+			var size = (len >> 2) * 3 + (rest >= 2?rest - 1:0);
+			var max = i + (len - rest);
+			var bytes = haxe.io.Bytes.alloc(size);
+			var bpos = 0;
+			while(i < max) {
+				var c1 = codes[buf.charCodeAt(i++)];
+				var c2 = codes[buf.charCodeAt(i++)];
+				bytes.b[bpos++] = (c1 << 2 | c2 >> 4) & 255;
+				var c3 = codes[buf.charCodeAt(i++)];
+				bytes.b[bpos++] = (c2 << 4 | c3 >> 2) & 255;
+				var c4 = codes[buf.charCodeAt(i++)];
+				bytes.b[bpos++] = (c3 << 6 | c4) & 255;
+			}
+			if(rest >= 2) {
+				var c1 = codes[buf.charCodeAt(i++)];
+				var c2 = codes[buf.charCodeAt(i++)];
+				bytes.b[bpos++] = (c1 << 2 | c2 >> 4) & 255;
+				if(rest == 3) {
+					var c3 = codes[buf.charCodeAt(i++)];
+					bytes.b[bpos++] = (c2 << 4 | c3 >> 2) & 255;
+				}
+			}
+			this.pos += len;
+			this.cache.push(bytes);
+			return bytes;
+		case 67:
+			var name = this.unserialize();
+			var cl = this.resolver.resolveClass(name);
+			if(cl == null) throw "Class not found " + name;
+			var o = Type.createEmptyInstance(cl);
+			this.cache.push(o);
+			o.hxUnserialize(this);
+			if(this.buf.charCodeAt(this.pos++) != 103) throw "Invalid custom data";
+			return o;
+		default:
+		}
+		this.pos--;
+		throw "Invalid char " + this.buf.charAt(this.pos) + " at position " + this.pos;
+	}
+	,unserializeEnum: function(edecl,tag) {
+		if(this.buf.charCodeAt(this.pos++) != 58) throw "Invalid enum format";
+		var nargs = this.readDigits();
+		if(nargs == 0) return Type.createEnum(edecl,tag);
+		var args = new Array();
+		while(nargs-- > 0) args.push(this.unserialize());
+		return Type.createEnum(edecl,tag,args);
+	}
+	,unserializeObject: function(o) {
+		while(true) {
+			if(this.pos >= this.length) throw "Invalid object";
+			if(this.buf.charCodeAt(this.pos) == 103) break;
+			var k = this.unserialize();
+			if(!js.Boot.__instanceof(k,String)) throw "Invalid object key";
+			var v = this.unserialize();
+			o[k] = v;
+		}
+		this.pos++;
+	}
+	,readDigits: function() {
+		var k = 0;
+		var s = false;
+		var fpos = this.pos;
+		while(true) {
+			var c = this.buf.charCodeAt(this.pos);
+			if(c != c) break;
+			if(c == 45) {
+				if(this.pos != fpos) break;
+				s = true;
+				this.pos++;
+				continue;
+			}
+			if(c < 48 || c > 57) break;
+			k = k * 10 + (c - 48);
+			this.pos++;
+		}
+		if(s) k *= -1;
+		return k;
+	}
+	,get: function(p) {
+		return this.buf.charCodeAt(p);
+	}
+	,getResolver: function() {
+		return this.resolver;
+	}
+	,setResolver: function(r) {
+		if(r == null) this.resolver = { resolveClass : function(_) {
+			return null;
+		}, resolveEnum : function(_) {
+			return null;
+		}}; else this.resolver = r;
+	}
+	,resolver: null
+	,scache: null
+	,cache: null
+	,length: null
+	,pos: null
+	,buf: null
+	,__class__: haxe.Unserializer
 }
 haxe.io = {}
 haxe.io.Bytes = function(length,b) {
@@ -5517,10 +5465,6 @@ brix.component.sound.SoundOff.__meta__ = { obj : { tagNameFilter : ["a"]}};
 brix.component.sound.SoundOff.CLASS_NAME = "SoundOff";
 brix.core.Application.BRIX_ID_ATTR_NAME = "data-brix-id";
 brix.core.Application.instances = new Hash();
-haxe.Unserializer.DEFAULT_RESOLVER = Type;
-haxe.Unserializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
-haxe.Unserializer.CODES = null;
-brix.core.ApplicationContext.htmlDocumentElement = haxe.Unserializer.run("y27042:%3CHTML%3E%0D%0A%3CHEAD%3E%0D%0A%09%3CTITLE%3ESplity%20Gallery%3C%2FTITLE%3E%0D%0A%09%3CLINK%20href%3D%22app.css%22%20type%3D%22text%2Fcss%22%20rel%3D%22stylesheet%22%3E%3C%2FLINK%3E%0D%0A%09%3CMETA%20http-equiv%3D%22Content-Type%22%20content%3D%22text%2Fhtml%3B%20charset%3DUTF-8%22%3E%3C%2FMETA%3E%20%0D%0A%09%3CMETA%20name%3D%22viewport%22%20content%3D%22width%3Ddevice-width%2Cinitial-scale%3D1.0%2Cminimum-scale%3D1.0%2Cmaximum-scale%3D1.0%2Cuser-scalable%3Dno%22%3E%3C%2FMETA%3E%0D%0A%09%3CMETA%20name%3D%22initialPageName%22%20content%3D%22page01%22%3E%3C%2FMETA%3E%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%09%0D%0A%3C%2FHEAD%3E%0D%0A%0D%0A%3CBODY%3E%0D%0A%09%0D%0A%09%3CDIV%20id%3D%22master%22%20title%3D%22Become%20the%20master%22%3E%3C%2FDIV%3E%0D%0A%09%3CDIV%20class%3D%22main-container%20ContextManager%20GallerySplity%20Pointer%22%20data-context-list%3D%22display%2C%20thumblist%2C%20remote%2C%20hand-pointer%22%20data-initial-context%3D%22display%22%3E%0D%0A%0D%0A%09%09%0D%0A%09%09%3CA%20class%3D%22LinkAddContext%22%20title%3D%22Display%20the%20cursor%22%20data-context%3D%22hand-pointer%22%3E%0D%0A%09%09%09%3CDIV%20class%3D%22pointer-display%22%3E%3C%2FDIV%3E%0D%0A%09%09%3C%2FA%3E%0D%0A%09%09%3CA%20class%3D%22LinkRemoveContext%20hand-pointer%22%20title%3D%22Hide%20the%20cursor%22%20data-context%3D%22hand-pointer%22%3E%0D%0A%09%09%09%3CDIV%20class%3D%22pointer-hide%22%3E%3C%2FDIV%3E%0D%0A%09%09%3C%2FA%3E%0D%0A%09%09%0D%0A%09%09%3CDIV%20class%3D%22pointer-image%20hand-pointer%22%20id%3D%22pointer%22%3E%3C%2FDIV%3E%0D%0A%09%09%0D%0A%09%09%3CDIV%20class%3D%22Panel%22%3E%0D%0A%09%09%09%0D%0A%09%09%09%3CDIV%20class%3D%22panel-footer%20thumblist%22%3E%0D%0A%09%09%09%09%3CDIV%20class%3D%22thumbs-container%22%3E%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22thumbs-mask%22%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page01%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage01.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page02%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage02.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page03%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage03.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page04%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage04.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page05%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage05.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page06%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage06.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page07%22%20class%3D%22LinkToPage%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage07.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page08%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage08.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page09%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage09.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page10%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage10.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page11%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage11.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page12%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%22%20src%3D%22assets%2Fimage12.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page13%22%20class%3D%22LinkToPage%20thumb-anchor%22%3E%0D%0A%09%09%09%09%09%09%09%3CIMG%20class%3D%22thumb%20thumb-last-item%22%20src%3D%22assets%2Fimage13.jpg%22%2F%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%0D%0A%09%09%09%3CDIV%20class%3D%22panel-body%22%3E%0D%0A%09%09%09%09%3CDIV%20class%3D%22pages-container%22%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page01%22%3E%3C%2FA%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group1%20Layer%20page01%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage01.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group2%20Layer%20page01%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page02%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group2%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group3%20Layer%20page01%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page02%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group4%20Layer%20page02%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage02.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group5%20Layer%20page02%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page01%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group5%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page03%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group5%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group6%20Layer%20page02%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page03%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group7%20Layer%20page03%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage03.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group8%20Layer%20page03%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page02%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group8%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page04%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group8%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group9%20Layer%20page03%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page04%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group10%20Layer%20page04%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage04.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group11%20Layer%20page04%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page03%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group11%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page05%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group11%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group12%20Layer%20page04%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page05%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group13%20Layer%20page05%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage05.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group14%20Layer%20page05%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page04%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group14%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page06%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group14%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group15%20Layer%20page05%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page06%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group16%20Layer%20page06%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage06.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group17%20Layer%20page06%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page05%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group17%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page07%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group17%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group18%20Layer%20page06%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page07%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group19%20Layer%20page07%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage07.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group20%20Layer%20page07%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page06%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group20%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page08%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group20%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group21%20Layer%20page07%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page08%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group22%20Layer%20page08%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage08.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group23%20Layer%20page08%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page07%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group23%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page09%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group23%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group24%20Layer%20page08%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page09%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group25%20Layer%20page09%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage09.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group26%20Layer%20page09%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page08%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group26%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page10%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group26%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group27%20Layer%20page09%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page10%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group28%20Layer%20page10%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage10.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group29%20Layer%20page10%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page09%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group29%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page11%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group29%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group30%20Layer%20page10%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page11%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group31%20Layer%20page11%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage11.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group32%20Layer%20page11%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page10%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group32%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page12%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group32%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group33%20Layer%20page11%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page12%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group34%20Layer%20page12%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage12.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group35%20Layer%20page12%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page11%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group35%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page13%22%20class%3D%22LinkToPage%20TouchLink%20right-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-left%22%20data-group-id%3D%22Group35%22%20data-show-start-style%3D%22page-right%22%20data-touch-type%3D%22right%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group36%20Layer%20page12%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22right-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%0D%0A%09%09%09%09%09%3CA%20class%3D%22Page%22%20name%3D%22page13%22%3E%3C%2FA%3E%0D%0A%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group37%20Layer%20page13%20display%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22big-img%22%20style%3D%22background-image%3Aurl%28assets%2Fimage13.jpg%29%3B%22%3E%3C%2FDIV%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group38%20Layer%20page13%20remote%20gesture%22%3E%0D%0A%09%09%09%09%09%09%0D%0A%09%09%09%09%09%09%3CA%20href%3D%22%23page12%22%20class%3D%22LinkToPage%20TouchLink%20left-container%22%20data-hide-start-style%3D%22page-center-horizontal%22%20data-show-end-style%3D%22page-center-horizontal%22%20data-hide-end-style%3D%22page-right%22%20data-group-id%3D%22Group38%22%20data-show-start-style%3D%22page-left%22%20data-touch-type%3D%22left%22%3E%0D%0A%09%09%09%09%09%09%3C%2FA%3E%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%0D%0A%09%09%09%09%09%3CDIV%20class%3D%22Group39%20Layer%20page13%20remote%22%3E%0D%0A%09%09%09%09%09%09%3CDIV%20class%3D%22left-arrow%20ResizeIcon%22%3E%3C%2FDIV%3E%09%0D%0A%09%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%09%3C%2FDIV%3E%0D%0A%09%09%09%3C%2FDIV%3E%0D%0A%09%09%3C%2FDIV%3E%0D%0A%09%3C%2FDIV%3E%0D%0A%3C%2FBODY%3E%3C%2FHTML%3E");
 brix.util.NodeTypes.ELEMENT_NODE = 1;
 brix.util.NodeTypes.ATTRIBUTE_NODE = 2;
 brix.util.NodeTypes.TEXT_NODE = 3;
@@ -5536,7 +5480,7 @@ brix.util.NodeTypes.NOTATION_NODE = 12;
 components.GallerySplity.THUMB_FUNCTIONNALITY = "thumblist";
 components.GallerySplity.REMOTE_FUNCTIONNALITY = "remote";
 components.GallerySplity.DISPLAY_FUNCTIONNALITY = "display";
-components.GallerySplity.SPLITY_URL = "splity.php/index.php";
+components.GallerySplity.SPLITY_URL = "http://demos.silexlabs.org/splity/splity.php/index.php";
 components.GallerySplity.ID_IDENT = "id";
 components.GallerySplity.CHANGE_PAGE = "changePage";
 components.GallerySplity.CONTEXT_MANAGER_CLASS = "ContextManager";
@@ -5555,6 +5499,9 @@ haxe.Template.expr_trim = new EReg("^[ ]*([^ ]+)[ ]*$","");
 haxe.Template.expr_int = new EReg("^[0-9]+$","");
 haxe.Template.expr_float = new EReg("^([+-]?)(?=\\d|,\\d)\\d*(,\\d*)?([Ee]([+-]?\\d+))?$","");
 haxe.Template.globals = { };
+haxe.Unserializer.DEFAULT_RESOLVER = Type;
+haxe.Unserializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
+haxe.Unserializer.CODES = null;
 js.Lib.onerror = null;
 org.phpMessaging.model.MessageData.TYPE_CLIENT_CREATED = "TYPE_NEW_CLIENT";
 org.phpMessaging.model.MessageData.TYPE_CLIENT_DELETED = "TYPE_CLIENT_DELETED";
