@@ -186,19 +186,40 @@
     <Content Include="Html\assets\thumbs\image11.jpg" />
     <Content Include="Html\assets\thumbs\image12.jpg" />
     <Content Include="Html\css\phone.css" />
+    <Content Include="Html\css\phone2.css" />
+    <Content Include="Html\css\reset.css" />
+    <Content Include="Html\css\ui-dark.css" />
+    <Resource Include="Html\img\bg-home.gif" />
+    <Resource Include="Html\img\logo-mini.gif" />
+    <Resource Include="Html\img\logo.gif" />
+    <Content Include="Html\image01.jpg" />
+    <Content Include="Html\img\logo.png" />
     <Content Include="Html\img\MainPageTItle.png" />
+    <Content Include="Html\img\picto-droite.png" />
+    <Content Include="Html\img\picto-gauche.png" />
+    <Content Include="Html\img\picto-micro.png" />
+    <Content Include="Html\img\picto-pointer.png" />
+    <Content Include="Html\img\picto-thumbs.png" />
     <Content Include="Html\img\Title.png" />
     <Content Include="Html\create.html">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Html\index.html">
+    <Content Include="Html\index.html" />
+    <Content Include="Html\index_lisa.html">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Html\index_old.html" />
     <Content Include="Html\join.html">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Html\splity.html" />
+    <Content Include="Html\questions.html" />
+    <Content Include="Html\reglages.html" />
+    <Content Include="Html\slides.html" />
+    <Content Include="Html\splity.html">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Html\test.html" />
+    <Content Include="Html\tweets.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\AppResources.resx">
