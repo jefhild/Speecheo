@@ -92,7 +92,7 @@ nav.pivot li.current a{
 .logo-home {
 	padding:10em 0 15em 0;
 	margin-bottom:4em;
-	background:#86b8b1 url('../img/bg-home.png') no-repeat center bottom;
+	background:#86b8b1 url("../img/bg-home.png") no-repeat center bottom;
 }
 .logo-home p {
 	text-align:center;

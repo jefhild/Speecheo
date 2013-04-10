@@ -189,6 +189,8 @@
     <Content Include="Html\css\phone2.css" />
     <Content Include="Html\css\reset.css" />
     <Content Include="Html\css\ui-dark.css" />
+    <Content Include="Html\img\bg-home.png" />
+    <Content Include="Html\img\logo-mini.png" />
     <Content Include="Html\img\logo.png" />
     <Content Include="Html\img\MainPageTItle.png" />
     <Content Include="Html\img\picto-droite.png" />
@@ -213,6 +215,10 @@
     <Content Include="Html\questions.html" />
     <Content Include="Html\reglages.html" />
     <Content Include="Html\slides.html" />
+    <Content Include="Html\slides_master.html" />
+    <Content Include="Html\slides_master.js" />
+    <Content Include="Html\slides_slave.html" />
+    <Content Include="Html\slides_slave.js" />
     <Content Include="Html\splity.html">
       <SubType>Designer</SubType>
     </Content>
