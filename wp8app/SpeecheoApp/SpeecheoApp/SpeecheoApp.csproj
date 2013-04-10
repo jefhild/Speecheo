@@ -189,10 +189,6 @@
     <Content Include="Html\css\phone2.css" />
     <Content Include="Html\css\reset.css" />
     <Content Include="Html\css\ui-dark.css" />
-    <Resource Include="Html\img\bg-home.gif" />
-    <Resource Include="Html\img\logo-mini.gif" />
-    <Resource Include="Html\img\logo.gif" />
-    <Content Include="Html\image01.jpg" />
     <Content Include="Html\img\logo.png" />
     <Content Include="Html\img\MainPageTItle.png" />
     <Content Include="Html\img\picto-droite.png" />
