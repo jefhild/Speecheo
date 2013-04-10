@@ -5,6 +5,149 @@ function $extend(from, fields) {
 	for (var name in fields) proto[name] = fields[name];
 	return proto;
 }
+var DateTools = function() { }
+$hxClasses["DateTools"] = DateTools;
+DateTools.__name__ = ["DateTools"];
+DateTools.__format_get = function(d,e) {
+	return (function($this) {
+		var $r;
+		switch(e) {
+		case "%":
+			$r = "%";
+			break;
+		case "C":
+			$r = StringTools.lpad(Std.string(d.getFullYear() / 100 | 0),"0",2);
+			break;
+		case "d":
+			$r = StringTools.lpad(Std.string(d.getDate()),"0",2);
+			break;
+		case "D":
+			$r = DateTools.__format(d,"%m/%d/%y");
+			break;
+		case "e":
+			$r = Std.string(d.getDate());
+			break;
+		case "H":case "k":
+			$r = StringTools.lpad(Std.string(d.getHours()),e == "H"?"0":" ",2);
+			break;
+		case "I":case "l":
+			$r = (function($this) {
+				var $r;
+				var hour = d.getHours() % 12;
+				$r = StringTools.lpad(Std.string(hour == 0?12:hour),e == "I"?"0":" ",2);
+				return $r;
+			}($this));
+			break;
+		case "m":
+			$r = StringTools.lpad(Std.string(d.getMonth() + 1),"0",2);
+			break;
+		case "M":
+			$r = StringTools.lpad(Std.string(d.getMinutes()),"0",2);
+			break;
+		case "n":
+			$r = "\n";
+			break;
+		case "p":
+			$r = d.getHours() > 11?"PM":"AM";
+			break;
+		case "r":
+			$r = DateTools.__format(d,"%I:%M:%S %p");
+			break;
+		case "R":
+			$r = DateTools.__format(d,"%H:%M");
+			break;
+		case "s":
+			$r = Std.string(d.getTime() / 1000 | 0);
+			break;
+		case "S":
+			$r = StringTools.lpad(Std.string(d.getSeconds()),"0",2);
+			break;
+		case "t":
+			$r = "\t";
+			break;
+		case "T":
+			$r = DateTools.__format(d,"%H:%M:%S");
+			break;
+		case "u":
+			$r = (function($this) {
+				var $r;
+				var t = d.getDay();
+				$r = t == 0?"7":Std.string(t);
+				return $r;
+			}($this));
+			break;
+		case "w":
+			$r = Std.string(d.getDay());
+			break;
+		case "y":
+			$r = StringTools.lpad(Std.string(d.getFullYear() % 100),"0",2);
+			break;
+		case "Y":
+			$r = Std.string(d.getFullYear());
+			break;
+		default:
+			$r = (function($this) {
+				var $r;
+				throw "Date.format %" + e + "- not implemented yet.";
+				return $r;
+			}($this));
+		}
+		return $r;
+	}(this));
+}
+DateTools.__format = function(d,f) {
+	var r = new StringBuf();
+	var p = 0;
+	while(true) {
+		var np = f.indexOf("%",p);
+		if(np < 0) break;
+		r.b += HxOverrides.substr(f,p,np - p);
+		r.b += Std.string(DateTools.__format_get(d,HxOverrides.substr(f,np + 1,1)));
+		p = np + 2;
+	}
+	r.b += HxOverrides.substr(f,p,f.length - p);
+	return r.b;
+}
+DateTools.format = function(d,f) {
+	return DateTools.__format(d,f);
+}
+DateTools.delta = function(d,t) {
+	return (function($this) {
+		var $r;
+		var d1 = new Date();
+		d1.setTime(d.getTime() + t);
+		$r = d1;
+		return $r;
+	}(this));
+}
+DateTools.getMonthDays = function(d) {
+	var month = d.getMonth();
+	var year = d.getFullYear();
+	if(month != 1) return DateTools.DAYS_OF_MONTH[month];
+	var isB = year % 4 == 0 && year % 100 != 0 || year % 400 == 0;
+	return isB?29:28;
+}
+DateTools.seconds = function(n) {
+	return n * 1000.0;
+}
+DateTools.minutes = function(n) {
+	return n * 60.0 * 1000.0;
+}
+DateTools.hours = function(n) {
+	return n * 60.0 * 60.0 * 1000.0;
+}
+DateTools.days = function(n) {
+	return n * 24.0 * 60.0 * 60.0 * 1000.0;
+}
+DateTools.parse = function(t) {
+	var s = t / 1000;
+	var m = s / 60;
+	var h = m / 60;
+	return { ms : t % 1000, seconds : s % 60 | 0, minutes : m % 60 | 0, hours : h % 24 | 0, days : h / 24 | 0};
+}
+DateTools.make = function(o) {
+	return o.ms + 1000.0 * (o.seconds + 60.0 * (o.minutes + 60.0 * (o.hours + 24.0 * o.days)));
+}
 var EReg = function(r,opt) {
 	opt = opt.split("u").join("");
 	this.r = new RegExp(r,opt);
@@ -1295,6 +1438,228 @@ brix.component.group.Groupable.startGroupable = function(groupable,rootElement) 
 		if(domElement != null) groupable.groupElement = domElement; else return;
 	}
 }
+brix.component.interaction = {}
+brix.component.interaction.DraggableState = $hxClasses["brix.component.interaction.DraggableState"] = { __ename__ : ["brix","component","interaction","DraggableState"], __constructs__ : ["none","dragging"] }
+brix.component.interaction.DraggableState.none = ["none",0];
+brix.component.interaction.DraggableState.none.toString = $estr;
+brix.component.interaction.DraggableState.none.__enum__ = brix.component.interaction.DraggableState;
+brix.component.interaction.DraggableState.dragging = ["dragging",1];
+brix.component.interaction.DraggableState.dragging.toString = $estr;
+brix.component.interaction.DraggableState.dragging.__enum__ = brix.component.interaction.DraggableState;
+brix.component.interaction.Draggable = function(rootElement,brixId) {
+	this.isDirty = false;
+	brix.component.ui.DisplayObject.call(this,rootElement,brixId);
+	brix.component.group.Groupable.startGroupable(this);
+	if(this.groupElement == null) this.groupElement = js.Lib.document.body;
+	this.phantom = js.Lib.document.createElement("div");
+	this.miniPhantom = js.Lib.document.createElement("div");
+	this.state = brix.component.interaction.DraggableState.none;
+	this.phantomClassName = rootElement.getAttribute("data-phantom-class-name");
+	if(this.phantomClassName == null || this.phantomClassName == "") this.phantomClassName = "draggable-phantom";
+	this.dropZonesClassName = rootElement.getAttribute("data-dropzones-class-name");
+	if(this.dropZonesClassName == null || this.dropZonesClassName == "") this.dropZonesClassName = "draggable-dropzone";
+};
+$hxClasses["brix.component.interaction.Draggable"] = brix.component.interaction.Draggable;
+brix.component.interaction.Draggable.__name__ = ["brix","component","interaction","Draggable"];
+brix.component.interaction.Draggable.__interfaces__ = [brix.component.group.IGroupable];
+brix.component.interaction.Draggable.__super__ = brix.component.ui.DisplayObject;
+brix.component.interaction.Draggable.prototype = $extend(brix.component.ui.DisplayObject.prototype,{
+	setAsBestDropZone: function(zone) {
+		if(zone == this.bestDropZone) return;
+		if(this.bestDropZone != null) this.bestDropZone.parent.removeChild(this.phantom);
+		if(zone != null) {
+			if(zone.parent.childNodes.length <= zone.position) zone.parent.appendChild(this.phantom); else zone.parent.insertBefore(this.phantom,zone.parent.childNodes[zone.position]);
+		}
+		this.bestDropZone = zone;
+	}
+	,computeDistance: function(boundingBox1,mouseX,mouseY) {
+		var centerBox1X = boundingBox1.x + boundingBox1.w / 2.0;
+		var centerBox1Y = boundingBox1.y + boundingBox1.h / 2.0;
+		return Math.sqrt(Math.pow(centerBox1X - mouseX,2) + Math.pow(centerBox1Y - mouseY,2));
+	}
+	,createDropZoneArray: function() {
+		var dropZones = new List();
+		var taggedDropZones = this.groupElement.getElementsByClassName(this.dropZonesClassName);
+		var _g1 = 0, _g = taggedDropZones.length;
+		while(_g1 < _g) {
+			var dzi = _g1++;
+			dropZones.add(taggedDropZones[dzi]);
+		}
+		if(dropZones.isEmpty()) dropZones.add(this.rootElement.parentNode);
+		this.dropZoneArray = new Array();
+		var $it0 = dropZones.iterator();
+		while( $it0.hasNext() ) {
+			var zone = $it0.next();
+			if(zone.style.display != "none") {
+				var _g1 = 0, _g = zone.childNodes.length;
+				while(_g1 < _g) {
+					var childIdx = _g1++;
+					var child = zone.childNodes[childIdx];
+					zone.insertBefore(this.miniPhantom,child);
+					var bbPhantom = brix.util.DomTools.getElementBoundingBox(this.miniPhantom);
+					this.dropZoneArray.push({ parent : zone, position : childIdx, boundingBox : bbPhantom});
+				}
+				zone.appendChild(this.miniPhantom);
+				var bbPhantom = brix.util.DomTools.getElementBoundingBox(this.miniPhantom);
+				this.dropZoneArray.push({ parent : zone, position : zone.childNodes.length + 1, boundingBox : bbPhantom});
+				zone.removeChild(this.miniPhantom);
+			}
+		}
+	}
+	,deleteDropZoneArray: function() {
+		this.dropZoneArray = null;
+	}
+	,getBestDropZone: function(mouseX,mouseY) {
+		if(this.dropZoneArray == null) throw "The drop zones must have been computed before you can get the best drop zone. Call Draggable::createDropZoneArray method first.";
+		var nearestDropZone = null;
+		var nearestDistance = 999999999.0;
+		var _g = 0, _g1 = this.dropZoneArray;
+		while(_g < _g1.length) {
+			var dropZone = _g1[_g];
+			++_g;
+			var dist = this.computeDistance(dropZone.boundingBox,mouseX,mouseY);
+			if(dist < nearestDistance) {
+				nearestDistance = dist;
+				nearestDropZone = dropZone;
+			}
+		}
+		return nearestDropZone;
+	}
+	,updateBestDropZone: function() {
+		this.isDirty = false;
+		if(this.state == brix.component.interaction.DraggableState.dragging) {
+			this.setAsBestDropZone(null);
+			this.setAsBestDropZone(this.getBestDropZone(this.currentMouseX,this.currentMouseY));
+		}
+	}
+	,invalidateBestDropZone: function() {
+		if(this.isDirty == false) {
+			this.isDirty = true;
+			haxe.Timer.delay($bind(this,this.updateBestDropZone),10);
+		}
+	}
+	,stopDrag: function(e) {
+		this.unmapListener(js.Lib.document.body,"mousemove",this.moveCallback,false);
+		if(this.state == brix.component.interaction.DraggableState.dragging) {
+			if(this.bestDropZone != null) {
+				this.rootElement.parentNode.removeChild(this.rootElement);
+				this.bestDropZone.parent.insertBefore(this.rootElement,this.bestDropZone.parent.childNodes[this.bestDropZone.position]);
+				var event = js.Lib.document.createEvent("CustomEvent");
+				event.initCustomEvent("dragEventDropped",true,true,{ dropZone : this.bestDropZone, target : this.bestDropZone.parent, draggable : this});
+				this.bestDropZone.parent.dispatchEvent(event);
+			}
+			var event = js.Lib.document.createEvent("CustomEvent");
+			event.initCustomEvent("dragEventDropped",true,true,{ dropZone : this.bestDropZone, target : this.rootElement, draggable : this});
+			this.rootElement.dispatchEvent(event);
+			this.state = brix.component.interaction.DraggableState.none;
+			this.resetRootElementStyle();
+			this.setAsBestDropZone(null);
+			this.deleteDropZoneArray();
+			e.preventDefault();
+		}
+	}
+	,move: function(e) {
+		if(this.state == brix.component.interaction.DraggableState.none) {
+			var boundingBox = brix.util.DomTools.getElementBoundingBox(this.rootElement);
+			this.state = brix.component.interaction.DraggableState.dragging;
+			this.initialMouseX = e.clientX - boundingBox.x;
+			this.initialMouseY = e.clientY - boundingBox.y;
+			this.initRootElementStyle();
+			this.initPhantomStyle();
+			brix.util.DomTools.moveTo(this.rootElement,boundingBox.x,boundingBox.y);
+			var event = js.Lib.document.createEvent("CustomEvent");
+			event.initCustomEvent("dragEventDrag",true,true,{ dropZone : this.bestDropZone, target : this.rootElement, draggable : this});
+			this.rootElement.dispatchEvent(event);
+			this.createDropZoneArray();
+		}
+		this.currentMouseX = e.clientX;
+		this.currentMouseY = e.clientY;
+		brix.util.DomTools.moveTo(this.rootElement,this.currentMouseX - this.initialMouseX,this.currentMouseY - this.initialMouseY);
+		this.invalidateBestDropZone();
+		var event = js.Lib.document.createEvent("CustomEvent");
+		event.initCustomEvent("dragEventMove",true,true,{ dropZone : this.bestDropZone, target : this.rootElement, draggable : this});
+		this.rootElement.dispatchEvent(event);
+	}
+	,startDrag: function(e) {
+		this.moveCallback = (function(f) {
+			return function(e1) {
+				return f(e1);
+			};
+		})($bind(this,this.move));
+		this.mapListener(js.Lib.document.body,"mousemove",this.moveCallback,false);
+		e.preventDefault();
+	}
+	,resetRootElementStyle: function() {
+		var _g = 0, _g1 = Reflect.fields(this.initialStyle);
+		while(_g < _g1.length) {
+			var styleName = _g1[_g];
+			++_g;
+			try {
+				var val = Reflect.field(this.initialStyle,styleName);
+				this.rootElement.style[styleName] = val;
+			} catch( e ) {
+			}
+		}
+	}
+	,initPhantomStyle: function(refHtmlDom) {
+		if(refHtmlDom == null) refHtmlDom = this.rootElement;
+		this.phantom.style.cssText = refHtmlDom.style.cssText;
+		this.miniPhantom.style.cssText = refHtmlDom.style.cssText;
+		this.phantom.className = this.phantomClassName;
+		this.miniPhantom.className = this.phantomClassName;
+		this.phantom.className += " " + refHtmlDom.className;
+		this.miniPhantom.className += " " + refHtmlDom.className;
+		this.phantom.style.width = refHtmlDom.clientWidth + "px";
+		this.phantom.style.height = refHtmlDom.clientHeight + "px";
+		this.miniPhantom.style.width = refHtmlDom.clientWidth + "px";
+		this.miniPhantom.style.height = refHtmlDom.clientHeight + "px";
+	}
+	,initRootElementStyle: function() {
+		this.initialStyle = { };
+		var _g = 0, _g1 = Reflect.fields(this.rootElement.style);
+		while(_g < _g1.length) {
+			var styleName = _g1[_g];
+			++_g;
+			var val = Reflect.field(this.rootElement.style,styleName);
+			this.initialStyle[styleName] = val;
+		}
+		this.initialStyle.width = this.rootElement.style.width;
+		this.rootElement.style.width = this.rootElement.clientWidth + "px";
+		this.initialStyle.height = this.rootElement.style.height;
+		this.rootElement.style.height = this.rootElement.clientHeight + "px";
+		this.initialStyle.position = this.rootElement.style.position;
+		this.rootElement.style.position = "absolute";
+	}
+	,clean: function() {
+		brix.component.ui.DisplayObject.prototype.clean.call(this);
+	}
+	,init: function() {
+		brix.component.ui.DisplayObject.prototype.init.call(this);
+		this.dragZone = brix.util.DomTools.getSingleElement(this.rootElement,"draggable-dragzone",false);
+		if(this.dragZone == null) this.dragZone = this.rootElement;
+		this.mapListener(this.dragZone,"mousedown",$bind(this,this.startDrag),false);
+		this.mapListener(js.Lib.document.body,"mouseup",$bind(this,this.stopDrag),false);
+		this.dragZone.style.cursor = "move";
+	}
+	,dropZoneArray: null
+	,isDirty: null
+	,currentMouseY: null
+	,currentMouseX: null
+	,initialMouseY: null
+	,initialMouseX: null
+	,initialStyle: null
+	,bestDropZone: null
+	,phantomClassName: null
+	,dropZonesClassName: null
+	,dragZone: null
+	,state: null
+	,miniPhantom: null
+	,phantom: null
+	,mouseUpCallback: null
+	,moveCallback: null
+	,groupElement: null
+	,__class__: brix.component.interaction.Draggable
+});
 brix.component.layout = {}
 brix.component.layout.LayoutBase = function(rootElement,BrixId) {
 	this.preventRedraw = false;
@@ -1400,6 +1765,294 @@ brix.component.layout.Panel.prototype = $extend(brix.component.layout.LayoutBase
 	,body: null
 	,isHorizontal: null
 	,__class__: brix.component.layout.Panel
+});
+brix.component.list = {}
+brix.component.list.ConnectorBase = function(rootElement,brixId) {
+	this.latestData = "";
+	this.isPolling = false;
+	this.dataRootNode = "";
+	brix.component.ui.DisplayObject.call(this,rootElement,brixId);
+	this.init();
+	if(rootElement.getAttribute("data-connector-auto-load") != "false") {
+		this.mapListener(rootElement,"onLayerShowAgain",$bind(this,this.onLayerShow),false);
+		this.mapListener(rootElement,"onLayerShowStop",$bind(this,this.onLayerShow),false);
+		this.mapListener(rootElement,"onLayerHideStop",$bind(this,this.onLayerHide),false);
+		var pollingFreqStr = rootElement.getAttribute("data-connector-poll-frequency");
+		if(pollingFreqStr != null) this.pollingFreq = Std.parseInt(pollingFreqStr); else this.pollingFreq = 0;
+		var startupDelay = rootElement.getAttribute("data-connector-startup-delay");
+		if(startupDelay != null) haxe.Timer.delay((function(f,a1) {
+			return function() {
+				return f(a1);
+			};
+		})($bind(this,this.loadData),null),Std.parseInt(startupDelay)); else this.loadData();
+	}
+};
+$hxClasses["brix.component.list.ConnectorBase"] = brix.component.list.ConnectorBase;
+brix.component.list.ConnectorBase.__name__ = ["brix","component","list","ConnectorBase"];
+brix.component.list.ConnectorBase.__super__ = brix.component.ui.DisplayObject;
+brix.component.list.ConnectorBase.prototype = $extend(brix.component.ui.DisplayObject.prototype,{
+	hasNoMoreDataToLoad: function(data) {
+		return data == this.latestData;
+	}
+	,parseData2Object: function(data) {
+	}
+	,onNoMoreData: function(objectData) {
+		this.dispatch("onNoMoreData",objectData,this.rootElement,false,brix.core.EventDirection.both);
+	}
+	,onDataReceived: function(objectData) {
+		this.dispatch("onDataReceived",objectData,this.rootElement,false,brix.core.EventDirection.both);
+	}
+	,onError: function(message) {
+		this.dispatch("onDataError",null,this.rootElement,false,brix.core.EventDirection.both);
+	}
+	,onData: function(data) {
+		if(this.isPolling && this.pollingFreq != null && this.pollingFreq > 0) haxe.Timer.delay((function(f,a1) {
+			return function() {
+				return f(a1);
+			};
+		})($bind(this,this.loadData),null),this.pollingFreq);
+		if(this.hasNoMoreDataToLoad(data)) {
+			this.onNoMoreData(this.objectData);
+			return;
+		} else {
+		}
+		this.latestData = data;
+		try {
+			this.objectData = this.parseData2Object(data);
+		} catch( e ) {
+			null;
+		}
+		if(this.objectData != null) {
+			if(this.dataRootNode != "") try {
+				var path = this.dataRootNode.split(".");
+				var _g1 = 0, _g = path.length;
+				while(_g1 < _g) {
+					var idx = _g1++;
+					var objName = path[idx];
+					this.objectData = Reflect.field(this.objectData,objName);
+				}
+			} catch( e ) {
+				null;
+			}
+			this.onDataReceived(this.objectData);
+		} else null;
+	}
+	,loadData: function(url) {
+		if(url == null) {
+			url = this.rootElement.getAttribute("data-connector-url");
+			if(url == null || url == "") return;
+		}
+		var http = new haxe.Http(url);
+		http.onError = $bind(this,this.onError);
+		http.onData = $bind(this,this.onData);
+		http.request(false);
+	}
+	,onLayerHide: function(e) {
+		if(this.pollingFreq != null && this.pollingFreq > 0) this.stopPolling();
+	}
+	,onLayerShow: function(e) {
+		this.loadData();
+		if(this.pollingFreq != null && this.pollingFreq > 0) this.startPolling(this.pollingFreq);
+		this.latestData = "";
+	}
+	,stopPolling: function() {
+		this.isPolling = false;
+	}
+	,startPolling: function(pollingFreq) {
+		this.isPolling = true;
+	}
+	,init: function() {
+		if(this.rootElement.getAttribute("data-connector-root") != null) this.dataRootNode = this.rootElement.getAttribute("data-connector-root");
+	}
+	,objectData: null
+	,latestData: null
+	,isPolling: null
+	,pollingFreq: null
+	,dataRootNode: null
+	,__class__: brix.component.list.ConnectorBase
+});
+brix.component.list.JsonConnector = function(rootElement,brixId) {
+	brix.component.list.ConnectorBase.call(this,rootElement,brixId);
+};
+$hxClasses["brix.component.list.JsonConnector"] = brix.component.list.JsonConnector;
+brix.component.list.JsonConnector.__name__ = ["brix","component","list","JsonConnector"];
+brix.component.list.JsonConnector.__super__ = brix.component.list.ConnectorBase;
+brix.component.list.JsonConnector.prototype = $extend(brix.component.list.ConnectorBase.prototype,{
+	parseData2Object: function(data) {
+		data = StringTools.replace(data,"\\\"","'");
+		return haxe.Json.parse(data);
+	}
+	,__class__: brix.component.list.JsonConnector
+});
+brix.component.list.Repeater = function(rootElement,brixId) {
+	this.isContinuationPending = false;
+	this.stopContinuationFlag = false;
+	brix.component.ui.DisplayObject.call(this,rootElement,brixId);
+	this.elementsHtml = new Array();
+	this.dataProvider = new Array();
+	this.htmlTemplate = rootElement.innerHTML;
+	rootElement.innerHTML = "";
+	this.mapListener(rootElement,"onDataReceived",$bind(this,this.onDataReceived),true);
+	this.mapListener(rootElement,"onLayerHideStop",$bind(this,this.onLayerHide),false);
+};
+$hxClasses["brix.component.list.Repeater"] = brix.component.list.Repeater;
+brix.component.list.Repeater.__name__ = ["brix","component","list","Repeater"];
+brix.component.list.Repeater.sleepOneFrame = function(handler) {
+	brix.util.DomTools.doLater(handler,3);
+}
+brix.component.list.Repeater.__super__ = brix.component.ui.DisplayObject;
+brix.component.list.Repeater.prototype = $extend(brix.component.ui.DisplayObject.prototype,{
+	getItemIdx: function(childElement) {
+		if(childElement == this.rootElement || childElement == null) return -1;
+		if(childElement.nodeType != this.rootElement.nodeType || childElement.getAttribute("data-list-item-idx") == null) return this.getItemIdx(childElement.parentNode);
+		return Std.parseInt(childElement.getAttribute("data-list-item-idx"));
+	}
+	,setItemIds: function(reset) {
+		if(reset == null) reset = false;
+		var idx = 0;
+		var _g1 = 0, _g = this.getNumChildren();
+		while(_g1 < _g) {
+			var i = _g1++;
+			var node = this.getChildAt(i);
+			if(node.nodeType != this.rootElement.nodeType || reset && node.getAttribute("data-list-item-idx") == null) continue;
+			node.setAttribute("data-list-item-idx",Std.string(idx));
+			idx++;
+		}
+	}
+	,reloadData: function() {
+		this.doRedraw();
+	}
+	,insertAt: function(node,idx) {
+		try {
+			if(idx < this.rootElement.childNodes.length - 1) this.rootElement.insertBefore(node,this.rootElement.childNodes[idx]); else this.rootElement.appendChild(node);
+		} catch( e ) {
+			throw "Error: an error occured while adding a node to the dom: " + Std.string(node) + " - " + Std.string(e);
+		}
+	}
+	,removeChild: function(node) {
+		this.rootElement.removeChild(node);
+	}
+	,getNumChildren: function() {
+		return this.rootElement.childNodes.length;
+	}
+	,getChildAt: function(idx) {
+		return this.rootElement.childNodes[idx];
+	}
+	,doRedraw: function() {
+		this.stopContinuationFlag = false;
+		var newElementsHtml = new Array();
+		var t = new haxe.Template(this.htmlTemplate);
+		var _g1 = 0, _g = this.dataProvider.length;
+		while(_g1 < _g) {
+			var idx = _g1++;
+			var element = this.dataProvider[idx];
+			try {
+				newElementsHtml.push(this.resolveItem(element,t));
+			} catch( e ) {
+				null;
+			}
+		}
+		var tmpElementsHtml = newElementsHtml.slice();
+		var toBeRemoved = new Array();
+		var _g1 = 0, _g = this.elementsHtml.length;
+		while(_g1 < _g) {
+			var htmlIdx = _g1++;
+			if(!Lambda.has(tmpElementsHtml,this.elementsHtml[htmlIdx])) {
+				var nodes = brix.util.DomTools.getElementsByAttribute(this.rootElement,"data-list-item-idx",Std.string(htmlIdx));
+				if(nodes.length == 0) null;
+				var node = nodes[0];
+				toBeRemoved.push(node);
+			} else {
+				var tmp = HxOverrides.remove(tmpElementsHtml,this.elementsHtml[htmlIdx]);
+			}
+		}
+		var _g = 0;
+		while(_g < toBeRemoved.length) {
+			var node = toBeRemoved[_g];
+			++_g;
+			try {
+				this.getBrixApplication().cleanNode(node);
+				this.removeChild(node);
+			} catch( e ) {
+				null;
+			}
+		}
+		var time = new Date().getTime();
+		var tmpDiv = js.Lib.document.createElement("div");
+		var numContinuation = 0;
+		var _g1 = 0, _g = this.dataProvider.length;
+		while(_g1 < _g) {
+			var idx = _g1++;
+			if(this.stopContinuationFlag == true) {
+				this.stopContinuationFlag = false;
+				return;
+			}
+			var element = this.dataProvider[idx];
+			var found = false;
+			var _g3 = idx, _g2 = this.elementsHtml.length;
+			while(_g3 < _g2) {
+				var htmlIdx = _g3++;
+				if(this.elementsHtml[htmlIdx] == newElementsHtml[idx]) {
+					found = true;
+					if(idx != htmlIdx) {
+						var nodes = brix.util.DomTools.getElementsByAttribute(this.rootElement,"data-list-item-idx",Std.string(htmlIdx));
+						if(nodes.length == 0) throw "doRedraw could not find node with id=" + htmlIdx;
+						var node = nodes[0];
+						try {
+							this.insertAt(node,idx);
+						} catch( e ) {
+							throw "Error: an error occured while moving a node in the dom: " + Std.string(node) + " - with the data " + Std.string(element) + " - " + Std.string(e);
+						}
+						node.setAttribute("data-list-item-idx",Std.string(idx));
+					}
+					break;
+				}
+			}
+			if(!found) {
+				try {
+					tmpDiv.innerHTML = newElementsHtml[idx];
+				} catch( e ) {
+					null;
+				}
+				var _g3 = 0, _g2 = tmpDiv.childNodes.length;
+				while(_g3 < _g2) {
+					var nodeIdx = _g3++;
+					var node = tmpDiv.childNodes[nodeIdx];
+					if(node != null && node.nodeType == 1) {
+						this.getBrixApplication().initNode(node);
+						this.insertAt(node,idx);
+						node.setAttribute("data-list-item-idx",Std.string(idx));
+						break;
+					}
+				}
+			}
+		}
+		this.elementsHtml = newElementsHtml;
+	}
+	,resolveItem: function(element,t) {
+		return t.execute(element,new brix.component.template.TemplateMacros());
+	}
+	,redraw: function() {
+		this.reloadData();
+	}
+	,onDataReceived: function(e) {
+		var newData = e.detail;
+		if(newData != null) {
+			var stopContinuation = this.isContinuationPending;
+			this.dataProvider = newData;
+			this.redraw();
+			if(stopContinuation) this.stopContinuationFlag = true;
+		}
+	}
+	,onLayerHide: function(e) {
+		if(this.isContinuationPending) this.stopContinuationFlag = true;
+	}
+	,isContinuationPending: null
+	,stopContinuationFlag: null
+	,dataProvider: null
+	,elementsHtml: null
+	,htmlTemplate: null
+	,__class__: brix.component.list.Repeater
 });
 brix.component.navigation = {}
 brix.component.navigation.ContextManager = function(rootElement,brixId) {
@@ -2424,6 +3077,164 @@ brix.component.sound.SoundOff.prototype = $extend(brix.component.sound.SoundOn.p
 	}
 	,__class__: brix.component.sound.SoundOff
 });
+brix.component.template = {}
+brix.component.template.TemplateMacros = function() {
+};
+$hxClasses["brix.component.template.TemplateMacros"] = brix.component.template.TemplateMacros;
+brix.component.template.TemplateMacros.__name__ = ["brix","component","template","TemplateMacros"];
+brix.component.template.TemplateMacros.prototype = {
+	trace: function(resolve,obj) {
+		return "";
+	}
+	,getAttribute: function(resolve,element,attr) {
+		if(element == null) return null;
+		return element.getAttribute(attr);
+	}
+	,htmlUnescape: function(resolve,str) {
+		return StringTools.htmlUnescape(str);
+	}
+	,htmlEscape: function(resolve,str) {
+		return StringTools.htmlEscape(str);
+	}
+	,urlDecode: function(resolve,str) {
+		return StringTools.urlDecode(str);
+	}
+	,urlEncode: function(resolve,str) {
+		return StringTools.urlEncode(str);
+	}
+	,makeDateReadable: function(resolve,dateOrString,format) {
+		if(format == null) format = "%Y/%m/%d %H:%M";
+		try {
+			var date;
+			if(js.Boot.__instanceof(dateOrString,String)) date = HxOverrides.strDate(dateOrString); else if(js.Boot.__instanceof(dateOrString,Date)) date = dateOrString; else {
+				date = null;
+				throw "Error, the parameter is supposed to be String or Date";
+			}
+			var res = DateTools.format(date,format);
+			return res;
+		} catch( e ) {
+			null;
+		}
+		return dateOrString;
+	}
+	,makeDateReadableFromTimestamp: function(resolve,timestamp,format,unit) {
+		if(unit == null) unit = "ms";
+		if(format == null) format = "%Y/%m/%d %H:%M";
+		if(StringTools.trim(unit) == "s") timestamp *= 1000;
+		var date;
+		date = (function($this) {
+			var $r;
+			var d = new Date();
+			d.setTime(timestamp);
+			$r = d;
+			return $r;
+		}(this));
+		var res = DateTools.format(date,format);
+		return res;
+	}
+	,durationFromTimestamp: function(resolve,timestamp,numMax,yearsText,monthsText,weeksText,daysText,hoursText,minutesText,secondsText,yearsTextPlural,monthsTextPlural,weeksTextPlural,daysTextPlural,hoursTextPlural,minutesTextPlural,secondsTextPlural,unit,prefix,suffix) {
+		if(suffix == null) suffix = "";
+		if(prefix == null) prefix = "";
+		if(unit == null) unit = "ms";
+		if(secondsTextPlural == null) secondsTextPlural = "seconds";
+		if(minutesTextPlural == null) minutesTextPlural = "minutes";
+		if(hoursTextPlural == null) hoursTextPlural = "hours";
+		if(daysTextPlural == null) daysTextPlural = "days";
+		if(weeksTextPlural == null) weeksTextPlural = "weeks";
+		if(monthsTextPlural == null) monthsTextPlural = "months";
+		if(yearsTextPlural == null) yearsTextPlural = "years";
+		if(secondsText == null) secondsText = "second";
+		if(minutesText == null) minutesText = "minute";
+		if(hoursText == null) hoursText = "hour";
+		if(daysText == null) daysText = "day";
+		if(weeksText == null) weeksText = "week";
+		if(monthsText == null) monthsText = "month";
+		if(yearsText == null) yearsText = "year";
+		if(numMax == null) numMax = 999;
+		var initialTimestamp = timestamp;
+		if(StringTools.trim(unit) == "s") timestamp *= 1000;
+		var elapsed = new Date().getTime() - timestamp;
+		return this.makeDurationReadable(resolve,elapsed,numMax,yearsText,monthsText,weeksText,daysText,hoursText,minutesText,secondsText,yearsTextPlural,monthsTextPlural,weeksTextPlural,daysTextPlural,hoursTextPlural,minutesTextPlural,secondsTextPlural,"ms",prefix,suffix,this.makeDateReadableFromTimestamp(resolve,initialTimestamp,null,unit));
+	}
+	,makeDurationReadable: function(resolve,duration,numMax,yearsText,monthsText,weeksText,daysText,hoursText,minutesText,secondsText,yearsTextPlural,monthsTextPlural,weeksTextPlural,daysTextPlural,hoursTextPlural,minutesTextPlural,secondsTextPlural,unit,prefix,suffix,defaultValue) {
+		if(defaultValue == null) defaultValue = "Very old.";
+		if(suffix == null) suffix = "";
+		if(prefix == null) prefix = "";
+		if(unit == null) unit = "ms";
+		if(secondsTextPlural == null) secondsTextPlural = "seconds";
+		if(minutesTextPlural == null) minutesTextPlural = "minutes";
+		if(hoursTextPlural == null) hoursTextPlural = "hours";
+		if(daysTextPlural == null) daysTextPlural = "days";
+		if(weeksTextPlural == null) weeksTextPlural = "weeks";
+		if(monthsTextPlural == null) monthsTextPlural = "months";
+		if(yearsTextPlural == null) yearsTextPlural = "years";
+		if(secondsText == null) secondsText = "second";
+		if(minutesText == null) minutesText = "minute";
+		if(hoursText == null) hoursText = "hour";
+		if(daysText == null) daysText = "day";
+		if(weeksText == null) weeksText = "week";
+		if(monthsText == null) monthsText = "month";
+		if(yearsText == null) yearsText = "year";
+		if(numMax == null) numMax = 999;
+		if(StringTools.trim(unit) == "s") duration *= 1000;
+		var num = 0;
+		var res = "";
+		var d = Math.floor(duration / 31536000000);
+		if(d > 0) {
+			duration -= d * 31536000000;
+			if(yearsText != null && yearsText != "") {
+				if(d > 1 && yearsTextPlural != null && yearsTextPlural != "") res += d + yearsTextPlural + " "; else res += d + yearsText + " ";
+				if(++num >= numMax) return prefix + res + suffix;
+			} else return defaultValue;
+		}
+		var d1 = Math.floor(duration / 2592000000);
+		if(d1 > 0) {
+			duration -= d1 * 2592000000;
+			if(monthsText != null && monthsText != "") {
+				if(d1 > 1 && monthsTextPlural != null && monthsTextPlural != "") res += d1 + monthsTextPlural + " "; else res += d1 + monthsText + " ";
+				if(++num >= numMax) return prefix + res + suffix;
+			} else return defaultValue;
+		}
+		var d2 = Math.floor(duration / 86400000);
+		duration -= d2 * 86400000;
+		var week = d2 / 7;
+		if(week > 1 && weeksText != null && weeksText != "") {
+			res += Math.floor(week) + weeksText + " ";
+			if(++num >= numMax) return prefix + res + suffix;
+		} else if(d2 > 0) {
+			if(daysText != null && daysText != "") {
+				if(d2 > 1 && daysTextPlural != null && daysTextPlural != "") res += d2 + daysTextPlural + " "; else res += d2 + daysText + " ";
+				if(++num >= numMax) return prefix + res + suffix;
+			} else return defaultValue;
+		}
+		var d3 = Math.floor(duration / 3600000);
+		if(d3 > 0) {
+			duration -= d3 * 3600000;
+			if(hoursText != null && hoursText != "") {
+				if(d3 > 1 && hoursTextPlural != null && hoursTextPlural != "") res += d3 + hoursTextPlural + " "; else res += d3 + hoursText + " ";
+				if(++num >= numMax) return prefix + res + suffix;
+			} else return defaultValue;
+		}
+		var d4 = Math.floor(duration / 60000);
+		if(d4 > 0) {
+			duration -= d4 * 60000;
+			if(minutesText != null && minutesText != "") {
+				if(d4 > 1 && minutesTextPlural != null && minutesTextPlural != "") res += d4 + minutesTextPlural + " "; else res += d4 + minutesText + " ";
+				if(++num >= numMax) return prefix + res + suffix;
+			} else return defaultValue;
+		}
+		var d5 = Math.floor(duration / 1000);
+		if(d5 > 0) {
+			duration -= d5 * 1000;
+			if(secondsText != null && secondsText != "") {
+				if(d5 > 1 && secondsTextPlural != null && secondsTextPlural != "") res += d5 + secondsTextPlural + " "; else res += d5 + secondsText + " ";
+				if(++num >= numMax) return prefix + res + suffix;
+			} else return defaultValue;
+		}
+		return prefix + res + suffix;
+	}
+	,__class__: brix.component.template.TemplateMacros
+}
 brix.core = {}
 brix.core.Application = function(id,args) {
 	this.dataObject = args;
@@ -2688,34 +3499,38 @@ $hxClasses["brix.core.ApplicationContext"] = brix.core.ApplicationContext;
 brix.core.ApplicationContext.__name__ = ["brix","core","ApplicationContext"];
 brix.core.ApplicationContext.prototype = {
 	registerComponentsforInit: function() {
-		brix.component.group.Group;
-		this.registeredUIComponents.push({ classname : "brix.component.group.Group", args : null, unconflictedClassTag : "Group"});
-		brix.component.navigation.link.LinkClosePage;
-		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkClosePage", args : null, unconflictedClassTag : "LinkClosePage"});
-		components.ResizeIcon;
-		this.registeredUIComponents.push({ classname : "components.ResizeIcon", args : null, unconflictedClassTag : "ResizeIcon"});
-		brix.component.navigation.link.LinkToPage;
-		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkToPage", args : null, unconflictedClassTag : "LinkToPage"});
-		brix.component.navigation.link.LinkReplaceContext;
-		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkReplaceContext", args : null, unconflictedClassTag : "LinkReplaceContext"});
-		brix.component.navigation.Layer;
-		this.registeredUIComponents.push({ classname : "brix.component.navigation.Layer", args : null, unconflictedClassTag : "Layer"});
-		brix.component.navigation.link.LinkAddContext;
-		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkAddContext", args : null, unconflictedClassTag : "LinkAddContext"});
 		brix.component.navigation.link.TouchLink;
 		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.TouchLink", args : null, unconflictedClassTag : "TouchLink"});
-		brix.component.navigation.Page;
-		this.registeredUIComponents.push({ classname : "brix.component.navigation.Page", args : null, unconflictedClassTag : "Page"});
+		brix.component.list.Repeater;
+		this.registeredUIComponents.push({ classname : "brix.component.list.Repeater", args : null, unconflictedClassTag : "Repeater"});
+		brix.component.navigation.Layer;
+		this.registeredUIComponents.push({ classname : "brix.component.navigation.Layer", args : null, unconflictedClassTag : "Layer"});
+		brix.component.group.Group;
+		this.registeredUIComponents.push({ classname : "brix.component.group.Group", args : null, unconflictedClassTag : "Group"});
 		components.Pointer;
 		this.registeredUIComponents.push({ classname : "components.Pointer", args : null, unconflictedClassTag : "Pointer"});
-		brix.component.navigation.ContextManager;
-		this.registeredUIComponents.push({ classname : "brix.component.navigation.ContextManager", args : null, unconflictedClassTag : "ContextManager"});
-		brix.component.navigation.link.LinkRemoveContext;
-		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkRemoveContext", args : null, unconflictedClassTag : "LinkRemoveContext"});
+		brix.component.navigation.Page;
+		this.registeredUIComponents.push({ classname : "brix.component.navigation.Page", args : null, unconflictedClassTag : "Page"});
+		brix.component.list.JsonConnector;
+		this.registeredUIComponents.push({ classname : "brix.component.list.JsonConnector", args : null, unconflictedClassTag : "JsonConnector"});
+		brix.component.navigation.link.LinkReplaceContext;
+		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkReplaceContext", args : null, unconflictedClassTag : "LinkReplaceContext"});
 		brix.component.layout.Panel;
 		this.registeredUIComponents.push({ classname : "brix.component.layout.Panel", args : null, unconflictedClassTag : "Panel"});
 		components.GallerySplity;
 		this.registeredUIComponents.push({ classname : "components.GallerySplity", args : null, unconflictedClassTag : "GallerySplity"});
+		brix.component.navigation.link.LinkRemoveContext;
+		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkRemoveContext", args : null, unconflictedClassTag : "LinkRemoveContext"});
+		brix.component.navigation.link.LinkToPage;
+		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkToPage", args : null, unconflictedClassTag : "LinkToPage"});
+		brix.component.navigation.link.LinkClosePage;
+		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkClosePage", args : null, unconflictedClassTag : "LinkClosePage"});
+		brix.component.navigation.ContextManager;
+		this.registeredUIComponents.push({ classname : "brix.component.navigation.ContextManager", args : null, unconflictedClassTag : "ContextManager"});
+		components.ResizeIcon;
+		this.registeredUIComponents.push({ classname : "components.ResizeIcon", args : null, unconflictedClassTag : "ResizeIcon"});
+		brix.component.navigation.link.LinkAddContext;
+		this.registeredUIComponents.push({ classname : "brix.component.navigation.link.LinkAddContext", args : null, unconflictedClassTag : "LinkAddContext"});
 	}
 	,registeredGlobalComponents: null
 	,registeredUIComponents: null
@@ -3526,6 +4341,281 @@ haxe.Http.prototype = {
 	,async: null
 	,url: null
 	,__class__: haxe.Http
+}
+haxe.Json = function() {
+};
+$hxClasses["haxe.Json"] = haxe.Json;
+haxe.Json.__name__ = ["haxe","Json"];
+haxe.Json.parse = function(text) {
+	return new haxe.Json().doParse(text);
+}
+haxe.Json.stringify = function(value) {
+	return new haxe.Json().toString(value);
+}
+haxe.Json.prototype = {
+	parseString: function() {
+		var start = this.pos;
+		var buf = new StringBuf();
+		while(true) {
+			var c = this.str.charCodeAt(this.pos++);
+			if(c == 34) break;
+			if(c == 92) {
+				buf.b += HxOverrides.substr(this.str,start,this.pos - start - 1);
+				c = this.str.charCodeAt(this.pos++);
+				switch(c) {
+				case 114:
+					buf.b += String.fromCharCode(13);
+					break;
+				case 110:
+					buf.b += String.fromCharCode(10);
+					break;
+				case 116:
+					buf.b += String.fromCharCode(9);
+					break;
+				case 98:
+					buf.b += String.fromCharCode(8);
+					break;
+				case 102:
+					buf.b += String.fromCharCode(12);
+					break;
+				case 47:case 92:case 34:
+					buf.b += String.fromCharCode(c);
+					break;
+				case 117:
+					var uc = Std.parseInt("0x" + HxOverrides.substr(this.str,this.pos,4));
+					this.pos += 4;
+					buf.b += String.fromCharCode(uc);
+					break;
+				default:
+					throw "Invalid escape sequence \\" + String.fromCharCode(c) + " at position " + (this.pos - 1);
+				}
+				start = this.pos;
+			} else if(c != c) throw "Unclosed string";
+		}
+		buf.b += HxOverrides.substr(this.str,start,this.pos - start - 1);
+		return buf.b;
+	}
+	,parseRec: function() {
+		while(true) {
+			var c = this.str.charCodeAt(this.pos++);
+			switch(c) {
+			case 32:case 13:case 10:case 9:
+				break;
+			case 123:
+				var obj = { }, field = null, comma = null;
+				while(true) {
+					var c1 = this.str.charCodeAt(this.pos++);
+					switch(c1) {
+					case 32:case 13:case 10:case 9:
+						break;
+					case 125:
+						if(field != null || comma == false) this.invalidChar();
+						return obj;
+					case 58:
+						if(field == null) this.invalidChar();
+						obj[field] = this.parseRec();
+						field = null;
+						comma = true;
+						break;
+					case 44:
+						if(comma) comma = false; else this.invalidChar();
+						break;
+					case 34:
+						if(comma) this.invalidChar();
+						field = this.parseString();
+						break;
+					default:
+						this.invalidChar();
+					}
+				}
+				break;
+			case 91:
+				var arr = [], comma = null;
+				while(true) {
+					var c1 = this.str.charCodeAt(this.pos++);
+					switch(c1) {
+					case 32:case 13:case 10:case 9:
+						break;
+					case 93:
+						if(comma == false) this.invalidChar();
+						return arr;
+					case 44:
+						if(comma) comma = false; else this.invalidChar();
+						break;
+					default:
+						if(comma) this.invalidChar();
+						this.pos--;
+						arr.push(this.parseRec());
+						comma = true;
+					}
+				}
+				break;
+			case 116:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 114 || this.str.charCodeAt(this.pos++) != 117 || this.str.charCodeAt(this.pos++) != 101) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return true;
+			case 102:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 97 || this.str.charCodeAt(this.pos++) != 108 || this.str.charCodeAt(this.pos++) != 115 || this.str.charCodeAt(this.pos++) != 101) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return false;
+			case 110:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 117 || this.str.charCodeAt(this.pos++) != 108 || this.str.charCodeAt(this.pos++) != 108) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return null;
+			case 34:
+				return this.parseString();
+			case 48:case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:case 45:
+				this.pos--;
+				if(!this.reg_float.match(HxOverrides.substr(this.str,this.pos,null))) throw "Invalid float at position " + this.pos;
+				var v = this.reg_float.matched(0);
+				this.pos += v.length;
+				var f = Std.parseFloat(v);
+				var i = f | 0;
+				return i == f?i:f;
+			default:
+				this.invalidChar();
+			}
+		}
+	}
+	,nextChar: function() {
+		return this.str.charCodeAt(this.pos++);
+	}
+	,invalidChar: function() {
+		this.pos--;
+		throw "Invalid char " + this.str.charCodeAt(this.pos) + " at position " + this.pos;
+	}
+	,doParse: function(str) {
+		this.reg_float = new EReg("^-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?","");
+		this.str = str;
+		this.pos = 0;
+		return this.parseRec();
+	}
+	,quote: function(s) {
+		this.buf.b += Std.string("\"");
+		var i = 0;
+		while(true) {
+			var c = s.charCodeAt(i++);
+			if(c != c) break;
+			switch(c) {
+			case 34:
+				this.buf.b += Std.string("\\\"");
+				break;
+			case 92:
+				this.buf.b += Std.string("\\\\");
+				break;
+			case 10:
+				this.buf.b += Std.string("\\n");
+				break;
+			case 13:
+				this.buf.b += Std.string("\\r");
+				break;
+			case 9:
+				this.buf.b += Std.string("\\t");
+				break;
+			case 8:
+				this.buf.b += Std.string("\\b");
+				break;
+			case 12:
+				this.buf.b += Std.string("\\f");
+				break;
+			default:
+				this.buf.b += String.fromCharCode(c);
+			}
+		}
+		this.buf.b += Std.string("\"");
+	}
+	,toStringRec: function(v) {
+		var $e = (Type["typeof"](v));
+		switch( $e[1] ) {
+		case 8:
+			this.buf.b += Std.string("\"???\"");
+			break;
+		case 4:
+			this.objString(v);
+			break;
+		case 1:
+		case 2:
+			this.buf.b += Std.string(v);
+			break;
+		case 5:
+			this.buf.b += Std.string("\"<fun>\"");
+			break;
+		case 6:
+			var c = $e[2];
+			if(c == String) this.quote(v); else if(c == Array) {
+				var v1 = v;
+				this.buf.b += Std.string("[");
+				var len = v1.length;
+				if(len > 0) {
+					this.toStringRec(v1[0]);
+					var i = 1;
+					while(i < len) {
+						this.buf.b += Std.string(",");
+						this.toStringRec(v1[i++]);
+					}
+				}
+				this.buf.b += Std.string("]");
+			} else if(c == Hash) {
+				var v1 = v;
+				var o = { };
+				var $it0 = v1.keys();
+				while( $it0.hasNext() ) {
+					var k = $it0.next();
+					o[k] = v1.get(k);
+				}
+				this.objString(o);
+			} else this.objString(v);
+			break;
+		case 7:
+			var e = $e[2];
+			this.buf.b += Std.string(v[1]);
+			break;
+		case 3:
+			this.buf.b += Std.string(v?"true":"false");
+			break;
+		case 0:
+			this.buf.b += Std.string("null");
+			break;
+		}
+	}
+	,objString: function(v) {
+		this.fieldsString(v,Reflect.fields(v));
+	}
+	,fieldsString: function(v,fields) {
+		var first = true;
+		this.buf.b += Std.string("{");
+		var _g = 0;
+		while(_g < fields.length) {
+			var f = fields[_g];
+			++_g;
+			var value = Reflect.field(v,f);
+			if(Reflect.isFunction(value)) continue;
+			if(first) first = false; else this.buf.b += Std.string(",");
+			this.quote(f);
+			this.buf.b += Std.string(":");
+			this.toStringRec(value);
+		}
+		this.buf.b += Std.string("}");
+	}
+	,toString: function(v) {
+		this.buf = new StringBuf();
+		this.toStringRec(v);
+		return this.buf.b;
+	}
+	,reg_float: null
+	,pos: null
+	,str: null
+	,buf: null
+	,__class__: haxe.Json
 }
 haxe.Log = function() { }
 $hxClasses["haxe.Log"] = haxe.Log;
@@ -5373,6 +6463,7 @@ Xml.Comment = "comment";
 Xml.DocType = "doctype";
 Xml.Prolog = "prolog";
 Xml.Document = "document";
+if(typeof(JSON) != "undefined") haxe.Json = JSON;
 if(typeof document != "undefined") js.Lib.document = document;
 if(typeof window != "undefined") {
 	js.Lib.window = window;
@@ -5397,8 +6488,18 @@ js.XMLHttpRequest = window.XMLHttpRequest?XMLHttpRequest:window.ActiveXObject?fu
 	throw "Unable to create XMLHttpRequest object.";
 	return $r;
 }(this));
+DateTools.DAYS_OF_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
 brix.component.group.Group.GROUP_ID_ATTR = "data-group-id";
 brix.component.group.Group.GROUP_SEQ = 0;
+brix.component.interaction.Draggable.CSS_CLASS_DRAGZONE = "draggable-dragzone";
+brix.component.interaction.Draggable.DEFAULT_CSS_CLASS_DROPZONE = "draggable-dropzone";
+brix.component.interaction.Draggable.DEFAULT_CSS_CLASS_PHANTOM = "draggable-phantom";
+brix.component.interaction.Draggable.ATTR_PHANTOM = "data-phantom-class-name";
+brix.component.interaction.Draggable.ATTR_DROPZONE = "data-dropzones-class-name";
+brix.component.interaction.Draggable.DELAY_BETWEEN_DROP_ZONE_CHECKS = 10;
+brix.component.interaction.Draggable.EVENT_DRAG = "dragEventDrag";
+brix.component.interaction.Draggable.EVENT_DROPPED = "dragEventDropped";
+brix.component.interaction.Draggable.EVENT_MOVE = "dragEventMove";
 brix.component.layout.LayoutBase.EVENT_LAYOUT_REDRAW = "layoutRedraw";
 brix.component.layout.Panel.DEFAULT_CSS_CLASS_HEADER = "panel-header";
 brix.component.layout.Panel.DEFAULT_CSS_CLASS_BODY = "panel-body";
@@ -5407,6 +6508,15 @@ brix.component.layout.Panel.ATTR_CSS_CLASS_HEADER = "data-panel-header-class-nam
 brix.component.layout.Panel.ATTR_CSS_CLASS_BODY = "data-panel-body-class-name";
 brix.component.layout.Panel.ATTR_CSS_CLASS_FOOTER = "data-panel-footer-class-name";
 brix.component.layout.Panel.ATTR_IS_HORIZONTAL = "data-panel-is-horizontal";
+brix.component.list.ConnectorBase.ON_DATA_RECEIVED = "onDataReceived";
+brix.component.list.ConnectorBase.ON_DATA_ERROR = "onDataError";
+brix.component.list.ConnectorBase.ON_NO_MORE_DATA = "onNoMoreData";
+brix.component.list.ConnectorBase.ATTR_AUTO_LOAD = "data-connector-auto-load";
+brix.component.list.ConnectorBase.ATTR_URL = "data-connector-url";
+brix.component.list.ConnectorBase.ATTR_ROOT = "data-connector-root";
+brix.component.list.ConnectorBase.ATTR_POLL_FREQ = "data-connector-poll-frequency";
+brix.component.list.ConnectorBase.ATTR_STARTUP_DELAY = "data-connector-startup-delay";
+brix.component.list.Repeater.DATA_ATTR_LIST_ITEM_INDEX = "data-list-item-idx";
 brix.component.navigation.ContextManager.PARAM_DATA_CONTEXT_LIST = "data-context-list";
 brix.component.navigation.ContextManager.PARAM_DATA_INITIAL_CONTEXT = "data-initial-context";
 brix.component.navigation.ContextManager.EVENT_CONTEXT_CHANGE = "changeContextEvent";
