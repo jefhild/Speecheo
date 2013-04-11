@@ -192,7 +192,6 @@
     <Resource Include="Html\img\bg-home.gif" />
     <Resource Include="Html\img\logo-mini.gif" />
     <Resource Include="Html\img\logo.gif" />
-    <Content Include="Html\image01.jpg" />
     <Content Include="Html\img\logo.png" />
     <Content Include="Html\img\MainPageTItle.png" />
     <Content Include="Html\img\picto-droite.png" />
@@ -200,6 +199,7 @@
     <Content Include="Html\img\picto-micro.png" />
     <Content Include="Html\img\picto-pointer.png" />
     <Content Include="Html\img\picto-thumbs.png" />
+    <Content Include="Html\img\pin.png" />
     <Content Include="Html\img\Title.png" />
     <Content Include="Html\create.html">
       <SubType>Designer</SubType>
