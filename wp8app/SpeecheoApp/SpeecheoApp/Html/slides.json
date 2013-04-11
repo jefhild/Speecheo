@@ -1,5 +1,5 @@
 [
-{"image":"assets/image01.jpg","page":"page01","previousPage":"page00","nextPage":"page01"},
+{"image":"assets/image01.jpg","page":"page01","previousPage":"page00","nextPage":"page02"},
 {"image":"assets/image02.jpg","page":"page02","previousPage":"page01","nextPage":"page03"},
 {"image":"assets/image03.jpg","page":"page03","previousPage":"page02","nextPage":"page04"},
 {"image":"assets/image04.jpg","page":"page04","previousPage":"page03","nextPage":"page05"},

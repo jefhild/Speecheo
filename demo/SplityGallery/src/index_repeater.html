@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Splity Gallery</title>
+	<link href="app.css" type="text/css" rel="stylesheet"></link>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></meta> 
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<meta name="initialPageName" content="page01"></meta>
+	<script data-brix-use="brix.component.group.Group"></script>
+	<script data-brix-use="brix.component.navigation.Page"></script>
+	<script data-brix-use="brix.component.navigation.Layer"></script>
+	<script data-brix-use="brix.component.navigation.link.LinkToPage"></script>
+	<script data-brix-use="brix.component.navigation.link.LinkClosePage"></script>
+	<script data-brix-use="brix.component.navigation.link.TouchLink"></script>
+	<script data-brix-use="brix.component.navigation.ContextManager"></script>
+	<script data-brix-use="brix.component.navigation.link.LinkAddContext"></script>
+	<script data-brix-use="brix.component.navigation.link.LinkRemoveContext"></script>
+	<script data-brix-use="brix.component.navigation.link.LinkReplaceContext"></script>
+	<script data-brix-use="brix.component.list.Repeater"></script>
+	<script data-brix-use="brix.component.list.JsonConnector"></script>
+	<!--<script data-brix-use="brix.component.layout.Panel"></script>-->
+	<script data-brix-use="components.GallerySplity"></script>
+	<script data-brix-use="components.Pointer"></script>
+	<script data-brix-use="components.ResizeIcon"></script>
+</head>
+<body>
+	<!-- MASTER BUTTON -->
+	<div id="master" title="Become the master"></div>
+	<div class="main-container ContextManager GallerySplity Pointer"
+		data-context-list="display, thumblist, remote, hand-pointer"
+		data-initial-context="display">
+
+		<!-- POINTER -->
+		<a title="Display the cursor" class="LinkAddContext" data-context="hand-pointer">
+			<div class="pointer-display"></div>
+		</a>
+		<a title="Hide the cursor" class="LinkRemoveContext hand-pointer" data-context="hand-pointer">
+			<div class="pointer-hide"></div>
+		</a>
+		<!--<img src="assets/hand.png" class="pointer-image hand-pointer" />-->
+		<div id="pointer" class="pointer-image hand-pointer" />
+		
+		<div class="Panel">
+			<!-- THUMBLIST -->
+			<div class="panel-footer thumblist">
+				<div class="thumbs-container">
+					<div class="Repeater JsonConnector thumbs-mask"
+						data-connector-url="slides.json">
+						<a href="#::page::" class="LinkToPage thumb-anchor">
+							<img src="::image::" class="thumb"></img>
+						</a>
+						<a href="#page13" class="LinkToPage thumb-anchor">
+							<img src="assets/image13.jpg" class="thumb thumb-last-item"></img>
+						</a>
+					</div>
+				</div>
+			</div>
+			
+			<div class="panel-body">
+				<div class="Repeater JsonConnector"
+					data-connector-url="slides.json">
+					<!-- PAGE -->
+					<a class="Page" name="::page::"></a>
+				</div>
+				<div class="Repeater JsonConnector pages-container"
+					data-connector-url="slides.json">
+					<div>
+						<!-- IMAGE -->
+						<div class="Layer ::page:: Group display">
+							<!-- IMAGE -->
+							<div class="big-img" style="background-image:url('::image::')"></div>
+						</div>
+						
+						<!-- NAVIGATION GESTURES -->
+						<div class="Layer ::page:: Group remote gesture">
+							<!-- NAV -->
+							<a href="#::previousPage::" class="LinkToPage TouchLink left-container"
+								data-touch-type="left"
+								data-show-start-style="page-left" data-show-end-style="page-center-horizontal"
+								data-hide-start-style="page-center-horizontal" data-hide-end-style="page-right">
+							</a>
+							<a href="#::nextPage::" class="LinkToPage TouchLink right-container"
+								data-touch-type="right"
+								data-show-start-style="page-right" data-show-end-style="page-center-horizontal"
+								data-hide-start-style="page-center-horizontal" data-hide-end-style="page-left">
+							</a>
+						</div>
+						
+						<!-- NAVIGATION ARROWS-->
+						<div class="Layer ::page:: Group remote">
+							<div class="left-arrow ResizeIcon"/>	
+							<div class="right-arrow ResizeIcon"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

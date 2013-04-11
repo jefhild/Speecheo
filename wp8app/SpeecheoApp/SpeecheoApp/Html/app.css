@@ -214,6 +214,9 @@ a{
 	height:100%;
 	white-space:nowrap;
 }
+.thumbs-mask a:last-child{
+	margin-right:10px;
+}
 .thumb{
 	bottom:0;
 	//max-height:80px;
