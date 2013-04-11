@@ -115,6 +115,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Html\slides.json" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
@@ -215,7 +216,9 @@
     <Content Include="Html\questions.html" />
     <Content Include="Html\reglages.html" />
     <Content Include="Html\slides.html" />
-    <Content Include="Html\slides_master.html" />
+    <Content Include="Html\slides_master.html">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Html\slides_master.js" />
     <Content Include="Html\slides_slave.html" />
     <Content Include="Html\slides_slave.js" />

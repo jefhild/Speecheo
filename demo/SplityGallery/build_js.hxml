@@ -15,6 +15,8 @@
 
 -cmd copy bin\slides_master.html ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
 -cmd copy bin\slides_master.js ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\app.css ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\slides.json ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
 
 --next
 
@@ -33,5 +35,7 @@
 --no-traces
 -D disableEmbedHtml
 
--cmd copy bin\slides_slave.html ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
--cmd copy bin\slides_slave.js ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\slides_master.html ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\slides_master.js ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\app.css ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\slides.json ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\

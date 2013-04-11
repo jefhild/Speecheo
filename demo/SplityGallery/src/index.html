@@ -18,7 +18,7 @@
 	<script data-brix-use="brix.component.navigation.link.LinkReplaceContext"></script>
 	<script data-brix-use="brix.component.list.Repeater"></script>
 	<script data-brix-use="brix.component.list.JsonConnector"></script>
-	<script data-brix-use="brix.component.layout.Panel"></script>
+	<!--<script data-brix-use="brix.component.layout.Panel"></script>-->
 	<script data-brix-use="components.GallerySplity"></script>
 	<script data-brix-use="components.Pointer"></script>
 	<script data-brix-use="components.ResizeIcon"></script>
@@ -57,37 +57,40 @@
 			</div>
 			
 			<div class="panel-body">
+				<div class="Repeater JsonConnector"
+					data-connector-url="slides.json">
+					<!-- PAGE -->
+					<a class="Page" name=" ::page:: "></a>
+				</div>
 				<div class="Repeater JsonConnector pages-container"
 					data-connector-url="slides.json">
-					
-				<!-- PAGES -->
-					<a class="Page" name="::page::"></a>
-
-					<!-- IMAGE -->
-					<div class="Layer ::page:: Group display">
+					<div>
 						<!-- IMAGE -->
-						<div class="big-img" style="background-image:url('::image::')"></div>
-					</div>
-					
-					<!-- NAVIGATION GESTURES -->
-					<div class="Layer ::page:: Group remote gesture">
-						<!-- NAV -->
-						<a href="#::previousPage::" class="LinkToPage TouchLink left-container"
-							data-touch-type="left"
-							data-show-start-style="page-left" data-show-end-style="page-center-horizontal"
-							data-hide-start-style="page-center-horizontal" data-hide-end-style="page-right">
-						</a>
-						<a href="#::nextPage::" class="LinkToPage TouchLink right-container"
-							data-touch-type="right"
-							data-show-start-style="page-right" data-show-end-style="page-center-horizontal"
-							data-hide-start-style="page-center-horizontal" data-hide-end-style="page-left">
-						</a>
-					</div>
-					
-					<!-- NAVIGATION ARROWS-->
-					<div class="Layer ::page:: Group remote">
-						<div class="left-arrow ResizeIcon"/>	
-						<div class="right-arrow ResizeIcon"/>
+						<div class="Layer ::page:: Group display">
+							<!-- IMAGE -->
+							<div class="big-img" style="background-image:url('::image::')"></div>
+						</div>
+						
+						<!-- NAVIGATION GESTURES -->
+						<div class="Layer ::page:: Group remote gesture">
+							<!-- NAV -->
+							<a href="#::previousPage::" class="LinkToPage TouchLink left-container"
+								data-touch-type="left"
+								data-show-start-style="page-left" data-show-end-style="page-center-horizontal"
+								data-hide-start-style="page-center-horizontal" data-hide-end-style="page-right">
+							</a>
+							<a href="#::nextPage::" class="LinkToPage TouchLink right-container"
+								data-touch-type="right"
+								data-show-start-style="page-right" data-show-end-style="page-center-horizontal"
+								data-hide-start-style="page-center-horizontal" data-hide-end-style="page-left">
+							</a>
+						</div>
+						
+						<!-- NAVIGATION ARROWS-->
+						<div class="Layer ::page:: Group remote">
+							<div class="left-arrow ResizeIcon"/>	
+							<div class="right-arrow ResizeIcon"/>
+						</div>
 					</div>
 				</div>
 			</div>
