@@ -199,6 +199,7 @@
     <Content Include="Html\img\picto-micro.png" />
     <Content Include="Html\img\picto-pointer.png" />
     <Content Include="Html\img\picto-thumbs.png" />
+    <Content Include="Html\img\pin.png" />
     <Content Include="Html\img\Title.png" />
     <Content Include="Html\create.html">
       <SubType>Designer</SubType>
