@@ -1,0 +1,88 @@
+<HTML>
+<HEAD>
+	<TITLE>Splity Gallery</TITLE>
+	<LINK href="app.css" type="text/css" rel="stylesheet"></LINK>
+	<META http-equiv="Content-Type" content="text/html; charset=UTF-8"></META> 
+	<META name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"></META>
+	<META name="initialPageName" content="page01"></META>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+<SCRIPT src="slides_master.js"></SCRIPT></HEAD>
+
+<BODY>
+	
+	<DIV id="master" title="Become the master"></DIV>
+	<DIV class="main-container ContextManager GallerySplity Pointer" data-context-list="display, thumblist, remote, hand-pointer" data-initial-context="display">
+
+		
+		<A class="LinkAddContext" title="Display the cursor" data-context="hand-pointer">
+			<DIV class="pointer-display"></DIV>
+		</A>
+		<A class="LinkRemoveContext hand-pointer" title="Hide the cursor" data-context="hand-pointer">
+			<DIV class="pointer-hide"></DIV>
+		</A>
+		
+		<DIV class="pointer-image hand-pointer" id="pointer"></DIV>
+		
+		<DIV class="Panel">
+			
+			<DIV class="panel-footer thumblist">
+				<DIV class="thumbs-container">
+					<DIV class="Repeater JsonConnector thumbs-mask" data-connector-url="slides.json">
+						<A href="#::page::" class="LinkToPage thumb-anchor">
+							<IMG class="thumb" src="::image::"/>
+						</A>
+						<A href="#page13" class="LinkToPage thumb-anchor">
+							<IMG class="thumb thumb-last-item" src="assets/image13.jpg"/>
+						</A>
+					</DIV>
+				</DIV>
+			</DIV>
+			
+			<DIV class="panel-body">
+				<DIV class="Repeater JsonConnector" data-connector-url="slides.json">
+					
+					<A class="Page" name=" ::page:: "></A>
+				</DIV>
+				<DIV class="Repeater JsonConnector pages-container" data-connector-url="slides.json">
+					<DIV>
+						
+						<DIV class="Group1 Layer ::page:: display">
+							
+							<DIV class="big-img" style="background-image:url(::image::);"></DIV>
+						</DIV>
+						
+						
+						<DIV class="Group2 Layer ::page:: remote gesture">
+							
+							<A href="#::previousPage::" class="LinkToPage TouchLink left-container" data-hide-start-style="page-center-horizontal" data-show-end-style="page-center-horizontal" data-hide-end-style="page-right" data-group-id="Group2" data-show-start-style="page-left" data-touch-type="left">
+							</A>
+							<A href="#::nextPage::" class="LinkToPage TouchLink right-container" data-hide-start-style="page-center-horizontal" data-show-end-style="page-center-horizontal" data-hide-end-style="page-left" data-group-id="Group2" data-show-start-style="page-right" data-touch-type="right">
+							</A>
+						</DIV>
+						
+						
+						<DIV class="Group3 Layer ::page:: remote">
+							<DIV class="left-arrow ResizeIcon"></DIV>	
+							<DIV class="right-arrow ResizeIcon"></DIV>
+						</DIV>
+					</DIV>
+				</DIV>
+			</DIV>
+		</DIV>
+	</DIV>
+</BODY></HTML>

@@ -66,7 +66,7 @@ header h1{
 	width:100%;
 	font-size:0px;
 	height:45px;
-	background:url('../img/logo-mini.gif') no-repeat center center;
+	background:url('../img/logo-mini.png') no-repeat center center;
 	text-align:center;
 	background-color:#321801;
 }
@@ -92,7 +92,7 @@ nav.pivot li.current a{
 .logo-home {
 	padding:10em 0 15em 0;
 	margin-bottom:4em;
-	background:#86b8b1 url('../img/bg-home.gif') no-repeat center bottom;
+	background:#86b8b1 url("../img/bg-home.png") no-repeat center bottom;
 }
 .logo-home p {
 	text-align:center;

@@ -7,11 +7,16 @@
 -lib hscript
 
 #binary
--js bin/app.js
+-js bin/slides_master.js
 -main brix.core.Application
 --macro brix.core.Builder.create('./src/index.html')
 --no-traces
 -D disableEmbedHtml
+
+-cmd copy bin\slides_master.html ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\slides_master.js ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\app.css ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\slides.json ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
 
 --next
 
@@ -24,7 +29,13 @@
 -lib hscript
 
 #binary
--js bin/app_slave.js
+-js bin/slides_slave.js
 -main brix.core.Application
 --macro brix.core.Builder.create('./src/index_slave.html')
 --no-traces
+-D disableEmbedHtml
+
+-cmd copy bin\slides_master.html ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\slides_master.js ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\app.css ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\
+-cmd copy bin\slides.json ..\..\wp8app\SpeecheoApp\SpeecheoApp\Html\

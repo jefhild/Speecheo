@@ -18,6 +18,11 @@ Tested and working on:
 -Android 4 +
 -Windows 8 (Phone)
 
+Compilation
+
+The build script should be launched from \demo\SplityGallery directory
+
+
 Issues on:
 -Windows Surface: arrows are not always working
 
