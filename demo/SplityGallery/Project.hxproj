@@ -15,10 +15,12 @@
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
-    <class path="src" />
     <class path="bin" />
+    <class path="src" />
+    <class path="..\..\src" />
     <class path="..\..\..\Cocktail" />
     <class path="..\..\..\Brix\src" />
+    <class path="..\..\..\SLDialog\src" />
   </classpaths>
   <!-- Build options -->
   <build>
