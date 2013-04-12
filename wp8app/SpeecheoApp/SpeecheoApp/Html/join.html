@@ -49,6 +49,10 @@
         font-family: "Helvetica";
         margin-bottom:30px;
       }
+      li a {
+        text-decoration:none;
+        color:white;
+      }
       .posConf{
         position:relative;
         top:15px;
@@ -127,7 +131,7 @@
       function displayData(){
       $.ajax({
       type: 'POST',
-      url: 'https://dl.dropboxusercontent.com/u/18147253/out.json',
+      url: 'https://dl.dropboxusercontent.com/u/18147253/outlite.json',
       /*url:'http://127.0.0.1:8888/data',*/
       contentType: "application/json; charset=utf-8",
       dataType: "json",
@@ -153,11 +157,12 @@
             //list
 						var i,element;
 						for(i=0;i<response.d.length;i++) {
-							element = "<li><span class='posConf'>"+i+"</span><span class='titleConf'>"+response.d[i].Title+"</span><span class='nameConf'>"+response.d[i].Name+"</span></li>";
+							element = "<li><a><span class='posConf'>"+i+"</span><span class='titleConf'>"+response.d[i].Title+"</span><span class='nameConf'>"+response.d[i].Name+"</span></a></li>";
 							$('#listconf').append(element);
 						}
 					}
 				});
+        $('li')
 			}
 		</script>
 	</body>
