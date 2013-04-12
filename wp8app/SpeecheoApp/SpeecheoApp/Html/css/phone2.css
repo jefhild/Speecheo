@@ -25,7 +25,7 @@ html, body {
 
 body {
     font-family: "Segoe UI";
-	font-size: 62.5%;;
+	font-size: 62.5%;
     letter-spacing: 0.02em;
     background-color: #86b8b1;
     color: #321801;
@@ -74,8 +74,9 @@ header h1{
 nav.pivot {
 	width:90%;
 	margin:0 auto;
-	font-size:4em;
-	padding:0.2em;
+	padding:5%;
+	font-size:2.6em;
+	/*font-size:4em; Haute résolution*/
 }
 nav.pivot li {
 	display:inline;
@@ -88,41 +89,45 @@ nav.pivot li.current a{
 }
 
 /*home*/
-
+.wrap-logo {
+	height:50%;
+	width:100%;
+	margin-bottom:10%;
+}
 .logo-home {
-	padding:10em 0 15em 0;
-	margin-bottom:4em;
-	background:#86b8b1 url("../img/bg-home.png") no-repeat center bottom;
+	height:100%;
+	background:#86b8b1 url('../img/bg-home.png') no-repeat center bottom;
 }
-.logo-home p {
-	text-align:center;
+#logo {
+	width:80%;
+	height:80%;
+	max-width:360px;
+	margin:0 auto;
+	background:transparent url('../img/logo.png') no-repeat center center;
+	background-size: contain;
 }
+
 .home a.button {
-	width:47%;
+	width:100%;
 	color:#321801;
-	display:inline-block;
-	border: 3px solid #321801;
+	display:block;
+	border: 2px solid #321801;
 	text-align:center;
 	padding:0.5em 0;
-	font-size:1.4em;
 	margin-bottom:1em;
 	font-weight:400;
-	font-size:2.2em;
+	font-size:1.6em;
+	/*	font-size:2.2em; Haute résolution */
 }
-.home a.button.creer{
-	float:left;
-}
-.home a.button.rejoindre {
-	float:right;
-}
+
 /*Page Slides*/
 section.slides img {
-	margin-bottom:1em;
+	margin-bottom:5%;
 	width:100%;
 }
 section.slides ul li {
 	float:left;
-	margin-right:1em;
+	margin-right:3.3%;
 	width:31.1%;
 }
 section.slides ul li:nth-child(3n) {
@@ -131,17 +136,60 @@ section.slides ul li:nth-child(3n) {
 
 footer {
 	width:100%;
-	height:70px;
+	height:10%;
+	padding:1% 0;
 	background-color:#321801;
 	position:absolute;
 	bottom:0;
 }
 footer ul {
-	padding-left:8em;
+	width:80%;
+	margin:0 auto;
 }
 footer ul li {
-	display:inline-block;
-	padding:0.8em 1em;
+	float:left;
+	margin-right:13%;
+	width:15%;
+	height:50px;
+	/*padding:0.8em 1em;*/
+}
+footer ul li:nth-child(4n) {
+	margin-right:0;
+}
+footer ul li a{
+	display:block;
+	padding:20%;
+}
+
+footer ul li.picto-1 {
+	background:url('../img/picto-gauche.png') no-repeat center center;
+	background-size: contain;
+}
+footer ul li.picto-2 {
+	background:url('../img/picto-droite.png') no-repeat center center;
+	background-size: contain;
+}
+footer ul li.picto-3 {
+	background:url('../img/picto-thumbs.png') no-repeat center center;
+	background-size: contain;
+}
+footer ul li.picto-4 {
+	background:url('../img/picto-pointer.png') no-repeat center center;
+	background-size: contain;
+}
+
+/*Page Questions*/
+ul.questions li {
+	background:url('../img/picto-micro.png') no-repeat left center;
+	background-size: contain;
+	font-size:2.7em;
+	/*font-size:4.2em; Haute résolution*/
+	font-weight:200;
+	margin: 0 0 5% 0;
+}
+ul.questions li a {
+	display:block;
+	padding:0 0 0 1.6em;
 }
 
 /*Page Tweets*/
@@ -155,15 +203,4 @@ section.tweet h1 {
 section.tweet p {
 	font-size:2em;
 	font-weight: 600;   
-}
-
-/*Page Questions*/
-ul.questions li {
-	background:url('../img/picto-micro.png') no-repeat left 0.1em;
-	font-size:4.2em;
-	font-weight:200
-}
-ul.questions li a {
-	display:block;
-	padding:0 0 0.4em 1.5em;
 }
