@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/ui-dark.css" />
+    <link rel="stylesheet" type="text/css" href="css/phone2.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <title>Windows Phone</title>
+    <script  type="text/javascript">
+      function getHash() {
+        var hash = window.location.hash;
+        return hash.substring(1); // remove #
+      }
+      $(document).ready(function(){
+        $('#confId').val(getHash().substring(getHash().indexOf('=')+1));
+      });
+      $(document).ready(function(){
+        
+      $('#daForm').on('submit', function() {
+        // je récupère les valeurs
+        var pseudo = $('#pseudo').val();
+        var phone = $('#phone').val();
+        var confId = $('#confId').val();
+        var urlBase = 'http://127.0.0.1:8888/';
+        if(pseudo == '' || phone == '') {
+            alert("Les champs doivent êtres remplis");
+        } else {
+          alert('SENDING2');
+            $.ajax({
+                url: urlBas+confId+"/"+pseudo+"/"+phone,
+                type: $(this).attr('method'),
+                success: function(html) {
+                    alert(html);
+                }
+            });
+        }
+        return false;
+    });
+      });
+    </script>
+</head>
+<body>
+	<header>
+		<a href="index.html"><h1>Speecheo</h1></a>
+	</header>
+	
+	<div id="content">
+		<form action="" method="get" id="daForm">
+      <input type="text" name="confId" id="confId" style="display:none;"/>
+			<span style="display:inline-block;width:100px;font-size:20px">Pseudo:</span><input type="text" name="pseudo" id="pseudo"><br/>
+			<span style="display:inline-block;width:100px;font-size:20px">Téléphone:</span><input type="tel" name="phone" id="phone"><br/>
+			<input type="submit" value="Connecter" style="background-color:white;color:#321801;">
+		</form>
+	</div>
+	<footer>
+		<ul>
+			<li class="picto-1"><a href="#">&nbsp</a></li>
+			<li class="picto-2"><a href="#">&nbsp</a></li>
+		</ul>
+	</footer>
+
+</body>
+</html>
