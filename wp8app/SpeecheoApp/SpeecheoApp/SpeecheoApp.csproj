@@ -231,6 +231,7 @@
     <Content Include="Html\tweets.html">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Html\userinfo.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\AppResources.resx">

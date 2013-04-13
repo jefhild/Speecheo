@@ -131,7 +131,7 @@
       function displayData(){
       $.ajax({
       type: 'POST',
-      url: 'https://dl.dropboxusercontent.com/u/18147253/outlite.json',
+      url: 'http://pirtym.com/speecheo/out.json',
       /*url:'http://127.0.0.1:8888/data',*/
       contentType: "application/json; charset=utf-8",
       dataType: "json",
@@ -140,10 +140,9 @@
       getMap(null);
       var j = 1;
       $.each(pins, function (index, pin) {
-        console.log(pin.Longitude);
-        var pinLocation = new Microsoft.Maps.Location(pin.Latitude, pin.Longitude)
-        // var pushpinOptions = {width: null, height: null,
-        // 	htmlContent: "<div style='font-size:12px;font-weight:bold;border:solid 2px;background-color:LightBlue;width:100px;'>Custom Pushpin</div>"};
+      var pinLocation = new Microsoft.Maps.Location(pin.Latitude, pin.Longitude)
+      // var pushpinOptions = {width: null, height: null,
+      // 	htmlContent: "<div style='font-size:12px;font-weight:bold;border:solid 2px;background-color:LightBlue;width:100px;'>Custom Pushpin</div>"};
 							var NewPin = new Microsoft.Maps.Pushpin(pinLocation, {
 								icon: '/img/mic.png',
 								text: pin.Title,
@@ -157,13 +156,16 @@
             //list
 						var i,element;
 						for(i=0;i<response.d.length;i++) {
-							element = "<li><a><span class='posConf'>"+i+"</span><span class='titleConf'>"+response.d[i].Title+"</span><span class='nameConf'>"+response.d[i].Name+"</span></a></li>";
+							element = "<li><a href='userinfo.html#confId="+i+"'><span class='posConf'>"+i+"</span><span class='titleConf'>"+response.d[i].Title+"</span><span class='nameConf'>"+response.d[i].Name+"</span></a></li>";
 							$('#listconf').append(element);
 						}
 					}
 				});
-        $('li')
 			}
+      
+      function gotoConf(idConf){
+        alert(idConf);
+      }
 		</script>
 	</body>
 </html>

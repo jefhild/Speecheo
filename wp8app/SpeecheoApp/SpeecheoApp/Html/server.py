@@ -8,7 +8,7 @@ db = torndb.Connection("127.0.0.1", "speecheo",user="root",password="")
 class MapHandler(tornado.web.RequestHandler):
 	def get(self):
 		#sys.exit()
-		self.render("join.html")
+		self.render("userinfo.html")
 		
 class WSUserQuitHandler(tornado.web.RequestHandler):
 	def get(self,confId,number):
